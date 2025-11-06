@@ -25,10 +25,6 @@ class MusicBot {
                 quality: 'highestaudio',
                 highWaterMark: 1 << 25
             },
-            leaveOnEmpty: config.player.leaveOnEmpty,
-            leaveOnEmptyCooldown: config.player.leaveOnEmptyCooldown,
-            leaveOnEnd: config.player.leaveOnEnd,
-            leaveOnEndCooldown: config.player.leaveOnEndCooldown,
             selfDeaf: config.player.selfDeaf,
             volume: config.player.volume
         });
