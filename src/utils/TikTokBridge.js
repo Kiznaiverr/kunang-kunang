@@ -12,15 +12,16 @@ class TikTokBridge {
         this.connection = null;
         this.isConnected = false;
         this.reconnectAttempts = 0;
-        this.maxReconnectAttempts = 3;
-        this.reconnectDelay = 5000; // 5 seconds
         
         // Configuration
         this.config = {
-            username: process.env.TIKTOK_USERNAME,
+            username: config.tiktok.username,
             targetGuildId: process.env.DISCORD_GUILD_ID,
             targetChannelId: process.env.DISCORD_VOICE_CHANNEL_ID,
-            prefix: config.bot.prefix
+            prefix: config.bot.prefix,
+            maxReconnectAttempts: config.tiktok.maxReconnectAttempts,
+            reconnectDelay: config.tiktok.reconnectDelay,
+            enabled: config.tiktok.enabled
         };
         
         // Statistics
@@ -36,6 +37,11 @@ class TikTokBridge {
      * Start the TikTok bridge connection
      */
     async start() {
+        if (!this.config.enabled) {
+            this.log('info', 'TikTok bridge is disabled in configuration');
+            return false;
+        }
+
         if (!this.validateConfiguration()) {
             return false;
         }
@@ -304,13 +310,13 @@ class TikTokBridge {
      * Handle connection failures and implement reconnection logic
      */
     async handleConnectionFailure(error) {
-        if (this.reconnectAttempts < this.maxReconnectAttempts) {
+        if (this.reconnectAttempts < this.config.maxReconnectAttempts) {
             this.reconnectAttempts++;
-            this.log('info', `Reconnection attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts} in ${this.reconnectDelay/1000}s...`);
+            this.log('info', `Reconnection attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${this.config.reconnectDelay/1000}s...`);
             
             setTimeout(() => {
                 this.start();
-            }, this.reconnectDelay);
+            }, this.config.reconnectDelay);
         } else {
             this.log('error', 'Max reconnection attempts reached. TikTok Bridge disabled.');
         }

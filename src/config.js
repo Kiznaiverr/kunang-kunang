@@ -15,14 +15,20 @@ module.exports = {
         maxQueueSize: 100,
         
         // Auto-leave settings (manual configuration)
-        leaveOnEmpty: false, // Leave when voice channel is empty
-        leaveOnEmptyCooldown: 5 * 60 * 1000, // 5 minutes in milliseconds
-        leaveOnEnd: false, // Leave when queue ends
-        leaveOnEndCooldown: 5 * 60 * 1000, // 5 minutes in milliseconds
+        leaveOnEmpty: true, // Leave immediately when voice channel is empty
+        leaveOnEnd: true, // Leave immediately when queue ends
         
         // Additional player options
         selfDeaf: true, // Bot will deafen itself when joining voice channels
         volume: 100, // Default volume (0-100)
         quality: 'high' // low, medium, high
+    },
+    
+    // TikTok integration settings
+    tiktok: {
+        username: '', // TikTok username to connect to for live chat commands
+        maxReconnectAttempts: 3,
+        reconnectDelay: 5000, // 5 seconds in milliseconds
+        enabled: false // Enable/disable TikTok bridge
     }
 };
