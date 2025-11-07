@@ -1,115 +1,136 @@
-# Kunang-Kunang - Discord Music Bot with TikTok Live Integration
+<div align="center">
 
-A powerful Discord music bot built with discord.js v14 and discord-player v7.1.x, featuring unique TikTok live chat integration that allows viewers to control music through TikTok live streams.
+# Kunang-Kunang
+
+### Discord Music Bot with TikTok Live Integration
+
+*A Discord music bot built with discord.js v14 and discord-player v7.1.x, featuring TikTok live chat integration for cross-platform music control.*
+
+[![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org)
+[![Discord.js](https://img.shields.io/badge/Discord.js-v14-blue.svg)](https://discord.js.org)
+[![Discord Player](https://img.shields.io/badge/Discord%20Player-v7.1.x-purple.svg)](https://discord-player.js.org)
+
+</div>
+
+---
 
 ## Features
 
-### Music Player
-- **High-quality audio playback** with multiple sources support
-- **SoundCloud integration** with custom extractor
-- **Queue management** with professional UI
-- **Music controls** (play, pause, resume, skip, stop)
-- **Volume control** and loop functionality
-- **Now playing** with progress bar
-- **Auto-leave** when voice channel is empty or idle
+<table>
+<tr>
+<td>
 
-### TikTok Live Integration
-- **Real-time bridge** between TikTok live chat and Discord
-- **Cross-platform commands** - control Discord bot from TikTok comments
-- **Automatic reconnection** with failure handling
-- **Statistics tracking** and monitoring
-- **Manual bridge control** via Discord commands
+**Music Player**
+- High-quality audio playback
+- SoundCloud integration
+- Queue management
+- Music controls (play, pause, skip, stop)
+- Volume control and loop functionality
+- Now playing with progress bar
+- Auto-leave when idle
 
-### User Interface
-- **Jockie Music inspired design** with clean, professional embeds
-- **Dark theme** with consistent color scheme (0x2f3136)
-- **Message editing** for smooth UX (no spam)
-- **Thumbnail support** (only for play command)
-- **Clean typography** without excessive emojis
+</td>
+<td>
 
-### Configuration
-- **Centralized config** in `src/config.js`
-- **Environment variables** for sensitive data
-- **Customizable settings** for all features
-- **Easy deployment** with minimal setup
+**TikTok Integration**  
+- Real-time bridge between TikTok and Discord
+- Cross-platform command execution
+- Automatic reconnection
+- Statistics tracking
+- Manual bridge control
+
+</td>
+</tr>
+<tr>
+<td colspan="2">
+
+**Configuration**
+- Centralized config system
+- Environment variables
+- Customizable settings
+- Easy deployment
+
+</td>
+</tr>
+</table>
 
 ## Quick Start
 
 ### Prerequisites
-- Node.js 16.x or higher
-- Discord Bot Token
-- **SoundCloud API credentials (Required)**
-- TikTok username for live integration (optional)
+
+> **Required:** Node.js 18+, Discord Bot Token, SoundCloud API credentials  
+> **Optional:** TikTok username for live integration
 
 ### Installation
 
-1. **Clone the repository**
 ```bash
-git clone https://github.com/yourusername/kunang-kunang.git
+# Clone repository
+git clone https://github.com/Kiznaiverr/kunang-kunang.git
 cd kunang-kunang
-```
 
-2. **Install dependencies**
-```bash
+# Install dependencies
 npm install
+
+# Start the bot
+npm start
 ```
 
-3. **Environment Configuration**
-Create `.env` file in root directory:
-```env
-# Discord Configuration (Required)
-DISCORD_BOT_TOKEN=your_discord_bot_token_here
-DISCORD_GUILD_ID=your_server_id_here
-DISCORD_VOICE_CHANNEL_ID=your_voice_channel_id_here
+### Environment Setup
 
-# SoundCloud API credentials (Required)
+Create `.env` file in root directory:
+
+```env
+# Discord Configuration
+DISCORD_BOT_TOKEN=your_discord_bot_token_here
+DISCORD_CHANNEL_ID=your_channel_id_here
+DISCORD_GUILD_ID=your_server_id_here  
+DISCORD_VOICE_CHANNEL_ID=your_voice_channel_id_here
+COMMAND_COOLDOWN=5000
+
+# SoundCloud API credentials (Required for now)
 SOUNDCLOUD_CLIENT_ID=your_soundcloud_client_id
 SOUNDCLOUD_OAUTH_TOKEN=your_soundcloud_oauth_token
-
-# TikTok Integration (Optional)
-TIKTOK_USERNAME=tiktok_username_for_live_chat
 ```
 
-### Getting SoundCloud API Credentials
+<details>
+<summary><strong>Getting SoundCloud API Credentials</strong></summary>
 
 **Important**: SoundCloud API credentials are required for the bot to function properly.
 
-1. **Visit SoundCloud Developers**
-   - Go to [SoundCloud Developers](https://developers.soundcloud.com/)
-   - Sign in with your SoundCloud account
+1. **Go to SoundCloud and login**
+   - Visit [soundcloud.com](https://soundcloud.com)
+   - Login to your account (skip if already logged in)
 
-2. **Create an Application**
-   - Click "Register a new application"
-   - Fill in your app details:
-     - App name: Your bot name
-     - Website URL: Your website or GitHub repo
-     - Description: Discord music bot
+2. **Open Developer Tools**
+   - Right click anywhere on the page and select "Inspect"
+   - Go to the "Network" tab in the developer tools
 
-3. **Get Your Credentials**
-   - After creating the app, you'll get:
-     - `Client ID`: Your application's client ID
-     - `Client Secret`: Keep this secure (not needed for basic usage)
+3. **Navigate and monitor requests**
+   - Go to [soundcloud.com](https://soundcloud.com)
+   - You should see requests appearing in the network tab
 
-4. **Get OAuth Token (if needed)**
-   - For enhanced features, you may need an OAuth token
-   - Follow SoundCloud's OAuth documentation
+4. **Find the session request**
+   - Look for a request named "session" (you can filter by typing "session" in the filter box)
+   - Click on this request
 
-5. **Add to .env file**
+5. **Extract your credentials**
+   - Go to the "Payload" tab
+   - Find your **Client ID** in the "Query String Parameters" section
+   - Find your **OAuth token** (access_token) in the "Request Payload" section
+
+6. **Add to .env file**
    ```env
    SOUNDCLOUD_CLIENT_ID=your_client_id_here
    SOUNDCLOUD_OAUTH_TOKEN=your_oauth_token_here
    ```
 
-4. **Start the bot**
-```bash
-npm start
-# or
-node src/index.js
-```
+</details>
 
-## Commands
+## Commands Reference
 
-### Music Commands
+<details>
+<summary><strong>Music Commands</strong></summary>
+
 | Command | Aliases | Description |
 |---------|---------|-------------|
 | `!play <song>` | - | Play a song or add to queue |
@@ -121,7 +142,11 @@ node src/index.js
 | `!nowplaying` | `!np`, `!current` | Show currently playing track |
 | `!volume <1-100>` | `!vol` | Set playback volume |
 
-### TikTok Bridge Commands
+</details>
+
+<details>
+<summary><strong>TikTok Bridge Commands</strong></summary>
+
 | Command | Aliases | Description |
 |---------|---------|-------------|
 | `!tiktok` | `!tt`, `!bridge` | Show TikTok bridge status |
@@ -129,9 +154,33 @@ node src/index.js
 | `!tiktok disconnect` | - | Disconnect TikTok bridge |
 | `!tiktok reconnect` | - | Reconnect TikTok bridge |
 
+</details>
+
+## TikTok Live Integration
+
+### How it Works
+
+1. **Connect to TikTok Live**: Bot connects to specified TikTok user's live stream
+2. **Monitor Chat**: Listens for commands in TikTok live chat
+3. **Execute Commands**: Processes commands and controls Discord music bot
+4. **Cross-platform Control**: TikTok viewers can control Discord music
+
+### Supported Commands from TikTok
+
+Any Discord music command can be used in TikTok live chat but cant displayed in TikTok live chat
+
+### TikTok Bridge Features
+
+- **Auto-reconnection** with failure handling
+- **Statistics tracking** (commands processed, uptime)
+- **Manual control** via Discord commands
+- **Real-time monitoring** and status display
+- **Error handling** and logging
+
 ## Configuration
 
-### Bot Settings (`src/config.js`)
+<details>
+<summary><strong>Bot Settings (src/config.js)</strong></summary>
 
 ```javascript
 module.exports = {
@@ -146,7 +195,6 @@ module.exports = {
     
     // Music player settings
     player: {
-        defaultVolume: 100,             // Default volume (1-100)
         defaultSearchEngine: 'soundcloud', // youtube, soundcloud, spotify
         maxQueueSize: 100,              // Maximum songs in queue        
         selfDeaf: true,                 // Bot deafens itself in voice channels
@@ -174,6 +222,8 @@ module.exports = {
 }
 ```
 
+</details>
+
 ### Environment Variables (`.env`)
 
 ```env
@@ -185,59 +235,38 @@ DISCORD_VOICE_CHANNEL_ID=your_voice_channel_id_here
 # SoundCloud API credentials (Required)
 SOUNDCLOUD_CLIENT_ID=your_soundcloud_client_id
 SOUNDCLOUD_OAUTH_TOKEN=your_soundcloud_oauth_token
+```
 
 ## Project Structure
 
 ```
 src/
-├── commands/           # Discord bot commands
-│   ├── play.js        # Music playback
-│   ├── queue.js       # Queue management
-│   ├── nowplaying.js  # Now playing display
-│   ├── skip.js        # Skip track
-│   ├── pause.js       # Pause/resume
-│   ├── resume.js      # Resume playback
-│   ├── stop.js        # Stop music
-│   ├── volume.js      # Volume control
-│   ├── shuffle.js     # Shuffle queue
-│   ├── leave.js       # Leave voice channel
-│   └── tiktok-stats.js # TikTok bridge monitoring
-├── events/            # Event handlers
+├── commands/
+│   ├── play.js
+│   ├── queue.js
+│   ├── nowplaying.js
+│   ├── skip.js
+│   ├── pause.js
+│   ├── resume.js
+│   ├── stop.js
+│   ├── volume.js
+│   ├── shuffle.js
+│   ├── leave.js
+│   └── tiktok-stats.js
+├── events/
 │   ├── discord/
-│   │   ├── index.js       # Discord events registration
-│   │   ├── clientEvents.js # Client events (ready, message)
-│   │   ├── playerEvents.js # Player events (track start, queue, etc.)
-│   │   └── errorEvents.js  # Error and disconnect events
-│   └── discordEvents.js # Legacy event handler (deprecated)
-├── extractors/        # Custom music extractors
-│   └── SoundCloudExtractor.js # SoundCloud support
-├── utils/             # Utility modules
-│   └── TikTokBridge.js # TikTok live integration
-├── config.js          # Bot configuration
-└── index.js          # Main application entry
+│   │   ├── index.js
+│   │   ├── clientEvents.js
+│   │   ├── playerEvents.js
+│   │   └── errorEvents.js
+│   └── discordEvents.js
+├── extractors/
+│   └── SoundCloudExtractor.js
+├── utils/
+│   └── TikTokBridge.js
+├── config.js
+└── index.js
 ```
-
-## TikTok Live Integration
-
-### How it Works
-
-1. **Connect to TikTok Live**: Bot connects to specified TikTok user's live stream
-2. **Monitor Chat**: Listens for commands in TikTok live chat
-3. **Execute Commands**: Processes commands and controls Discord music bot
-4. **Cross-platform Control**: TikTok viewers can control Discord music
-
-### Supported Commands from TikTok
-
-Any Discord music command can be used in TikTok live chat but cant displayed in TikTok live chat
-
-### TikTok Bridge Features
-
-- **Auto-reconnection** with failure handling
-- **Statistics tracking** (commands processed, uptime)
-- **Manual control** via Discord commands
-- **Real-time monitoring** and status display
-- **Error handling** and logging
-
 
 ## Development
 
@@ -295,6 +324,8 @@ bot.player.events.on('eventName', (queue, data) => {
 - [ ] **Lyrics display** for current tracks
 - [ ] **Music recommendations** based on listening history
 
+---
+
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
@@ -307,12 +338,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 4. Push to branch (`git push origin feature/amazing-feature`)
 5. Open Pull Request
 
-## Acknowledgments
-
-- [discord.js](https://discord.js.org/) - Discord API library
-- [discord-player](https://discord-player.js.org/) - Music player framework
-- [tiktok-live-connector](https://www.npmjs.com/package/tiktok-live-connector) - TikTok live integration
-
 ## Support
 
 For support and questions:
@@ -321,4 +346,10 @@ For support and questions:
 
 ---
 
-**Kunang-Kunang music bot - adios**
+<div align="center">
+
+**Built with love by [Kiznaiverr](https://github.com/Kiznaiverr)**
+
+*Kunang-Kunang - Bringing music communities together across platforms*
+
+</div>
