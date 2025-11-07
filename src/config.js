@@ -8,12 +8,11 @@ module.exports = {
     },
     
     player: {
-        defaultVolume: 100,
         defaultSearchEngine: 'soundcloud', 
         maxQueueSize: 100,
         selfDeaf: true, 
         volume: 100, 
-        quality: 'high', 
+        quality: 'high',  
         
         leaveOptions: {
             leaveOnEnd: true,        
