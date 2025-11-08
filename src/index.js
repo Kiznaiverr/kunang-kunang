@@ -76,7 +76,6 @@ class MusicBot {
         this.initTikTokBridge();
         
         // Initialize overlay server after TikTok bridge
-        console.log('Initializing Overlay Server...');
         this.overlayServer.start();
         await this.delay(1000);
     }
@@ -102,7 +101,6 @@ class MusicBot {
     }
 
     async initTikTokBridge() {
-        console.log(chalk.blue('Initializing TikTok Bridge...'));
         await this.delay(1000);
         
         this.tiktokBridge = new TikTokBridge(this);
