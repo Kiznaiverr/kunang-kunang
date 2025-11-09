@@ -42,7 +42,17 @@
 </td>
 </tr>
 <tr>
-<td colspan="2">
+<td>
+
+**Web Overlay**
+- Real-time music display for streaming
+- 4 different visual presets
+- OBS browser source integration
+- 400x80px transparent overlay
+- Queue preview and status indicator
+
+</td>
+<td>
 
 **Configuration**
 - Centralized config system
@@ -177,6 +187,67 @@ Any Discord music command can be used in TikTok live chat but cant displayed in 
 - **Real-time monitoring** and status display
 - **Error handling** and logging
 
+## Web Overlay Integration
+
+### Overview
+
+Kunang-Kunang includes a built-in web overlay system for streamers, displaying real-time music information that can be captured in OBS using browser source.
+
+### Features
+
+- **Real-time Updates**: Live display of currently playing track
+- **4 Visual Presets**: Different styles to match your stream aesthetic
+- **Transparent Design**: Seamless integration with streaming software
+- **Queue Preview**: Shows next tracks in queue
+- **Fixed Size**: 400x80px optimized for streaming layouts
+
+### Available Presets
+
+| Preset | Style | Theme | Best For |
+|--------|-------|--------|----------|
+| 1 | Vinyl | Classic dark with circular album art | Retro/music streams |
+| 2 | Crystal Glass | Modern transparent glassmorphism | Professional/clean streams |
+| 3 | Minimal Line | Geometric with green accents | Gaming/tech streams |
+| 4 | Neon Pulse | Cyberpunk with cyan/magenta glow | Tech/coding streams |
+
+### OBS Setup
+
+1. **Start the overlay server**:
+   ```bash
+   npm start           # Full bot with overlay
+   npm run test-overlay # Overlay only for testing
+   ```
+
+2. **Add Browser Source in OBS**:
+   - URL: `http://localhost:3000`
+   - Width: `400`
+   - Height: `80`
+   - Check "Shutdown source when not visible"
+
+3. **Configure preset in `src/config.js`**:
+   ```javascript
+   overlay: {
+       enabled: true,
+       preset: 2        // 1, 2, 3, or 4
+   }
+   ```
+
+4. **Refresh browser source** and start playing music!
+
+### Overlay Configuration
+
+Edit `src/config.js` to customize overlay behavior:
+
+```javascript
+overlay: {
+    enabled: true,              // Enable/disable overlay server
+    port: 3000,                // Server port
+    pollingInterval: 1000,      // Update frequency (ms)
+    maxQueueDisplay: 3,         // Songs to show in queue
+    preset: 2                   // Visual preset (1-4)
+}
+```
+
 ## Configuration
 
 <details>
@@ -218,6 +289,15 @@ module.exports = {
         maxReconnectAttempts: 3,        // Max reconnection attempts
         reconnectDelay: 5000,           // Delay between reconnection attempts (ms)
         enabled: false                  // Enable/disable TikTok integration
+    },
+
+    // Web overlay settings
+    overlay: {
+        enabled: true,                  // Enable/disable overlay server
+        port: 3000,                    // Server port for overlay
+        pollingInterval: 1000,          // Update frequency in ms
+        maxQueueDisplay: 3,             // Number of queue items to display
+        preset: 2                       // Visual preset: 1, 2, 3, or 4
     }
 }
 ```
@@ -264,6 +344,17 @@ src/
 │   └── SoundCloudExtractor.js
 ├── utils/
 │   └── TikTokBridge.js
+├── web-overlay/
+│   ├── server.js
+│   └── public/
+│       ├── index.html
+│       ├── css/
+│       │   ├── preset1.css
+│       │   ├── preset2.css
+│       │   ├── preset3.css
+│       │   └── preset4.css
+│       └── js/
+│           └── overlay.js
 ├── config.js
 └── index.js
 ```
