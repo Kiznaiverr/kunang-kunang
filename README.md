@@ -212,41 +212,15 @@ Kunang-Kunang includes a built-in web overlay system for streamers, displaying r
 
 ### OBS Setup
 
-1. **Start the overlay server**:
-   ```bash
-   npm start           # Full bot with overlay
-   npm run test-overlay # Overlay only for testing
-   ```
-
-2. **Add Browser Source in OBS**:
+1. **Add Browser Source in OBS**:
    - URL: `http://localhost:3000`
    - Width: `400`
    - Height: `80`
    - Check "Shutdown source when not visible"
 
-3. **Configure preset in `src/config.js`**:
-   ```javascript
-   overlay: {
-       enabled: true,
-       preset: 2        // 1, 2, 3, or 4
-   }
-   ```
+2. **Configure preset in Configuration section below**
 
-4. **Refresh browser source** and start playing music!
-
-### Overlay Configuration
-
-Edit `src/config.js` to customize overlay behavior:
-
-```javascript
-overlay: {
-    enabled: true,              // Enable/disable overlay server
-    port: 3000,                // Server port
-    pollingInterval: 1000,      // Update frequency (ms)
-    maxQueueDisplay: 3,         // Songs to show in queue
-    preset: 2                   // Visual preset (1-4)
-}
-```
+3. **Refresh browser source** and start playing music!
 
 ## Configuration
 
