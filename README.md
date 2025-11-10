@@ -22,7 +22,7 @@
 
 **Music Player**
 - High-quality audio playback
-- SoundCloud and Youtube source music
+- Multiple music sources: SoundCloud, YouTube, Spotify
 - Queue management
 - Music controls (play, pause, skip, stop)
 - Volume control and loop functionality
@@ -69,7 +69,7 @@
 ### Prerequisites
 
 > **Required:** Node.js 18+, Discord Bot Token, SoundCloud API credentials  
-> **Optional:** TikTok username for live integration
+> **Optional:** TikTok username for live integration  
 
 ### Installation
 
@@ -260,7 +260,6 @@ module.exports = {
     
     // Music player settings
     player: {
-        defaultSearchEngine: 'soundcloud', // youtube, soundcloud, spotify
         maxQueueSize: 100,              // Maximum songs in queue        
         selfDeaf: true,                 // Bot deafens itself in voice channels
         volume: 100,                    // Default volume (0-100)
@@ -323,7 +322,8 @@ src/
 │   └── discordEvents.js
 ├── extractors/
 │   ├── SoundCloudExtractor.js
-│   └── YouTubeExtractor.js
+│   ├── YouTubeExtractor.js
+│   └── SpotifyBridgeExtractor.js
 ├── utils/
 │   └── TikTokBridge.js
 ├── web/
@@ -383,7 +383,7 @@ bot.player.events.on('eventName', (queue, data) => {
 ### Planned Features
 
 - [x] **Sending message when a command is triggered from TikTok**
-- [ ] **add other music platform**
+- [x] **Add other music platforms (YouTube, Spotify)**
 - [ ] **Make TikTok chat assistant**
 
 ---
