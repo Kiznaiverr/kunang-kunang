@@ -37,9 +37,10 @@ module.exports = {
         const query = args.join(' ');
 
         try {
+            // Don't specify searchEngine parameter - let extractors validate naturally
+            // Based on their validate() methods:
             const searchResult = await player.search(query, {
-                requestedBy: message.user,
-                searchEngine: config.player.defaultSearchEngine
+                requestedBy: message.user
             });
 
             if (!searchResult || !searchResult.tracks.length) {

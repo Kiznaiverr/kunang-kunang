@@ -13,7 +13,15 @@ class SoundCloudExtractor extends BaseExtractor {
     }
 
     async validate(query) {
-        return typeof query === 'string' && query.length > 0;
+        if (typeof query !== 'string' || query.length === 0) {
+            return false;
+        }
+        
+        if (this.isSoundCloudURL(query)) {
+            return true;
+        }
+        
+        return true;
     }
 
     async handle(query) {
