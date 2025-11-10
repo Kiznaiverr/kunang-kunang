@@ -22,7 +22,7 @@
 
 **Music Player**
 - High-quality audio playback
-- SoundCloud integration
+- SoundCloud and Youtube source music
 - Queue management
 - Music controls (play, pause, skip, stop)
 - Volume control and loop functionality
@@ -210,6 +210,26 @@ Kunang-Kunang includes a built-in web overlay system for streamers, displaying r
 | 3 | Minimal Line | Geometric with green accents | Gaming/tech streams |
 | 4 | Neon Pulse | Cyberpunk with cyan/magenta glow | Tech/coding streams |
 
+**Custom Overlay**
+
+You can customize the overlay by creating your own design using the API endpoint at `/api/nowplaying`, which provides real-time music data:
+
+```json
+{
+  "title": "Song Title",
+  "author": "Artist Name",
+  "thumbnail": "image_url",
+  "duration": "3:45",
+  "progress": 45000,
+  "volume": 100,
+  "isPlaying": true,
+  "queue": [
+    { "title": "Next Song 1", "author": "Artist 1" },
+    { "title": "Next Song 2", "author": "Artist 2" }
+  ]
+}
+```
+
 ### OBS Setup
 
 1. **Add Browser Source in OBS**:
@@ -302,12 +322,13 @@ src/
 │   │   └── errorEvents.js
 │   └── discordEvents.js
 ├── extractors/
-│   └── SoundCloudExtractor.js
+│   ├── SoundCloudExtractor.js
+│   └── YouTubeExtractor.js
 ├── utils/
 │   └── TikTokBridge.js
-├── web-overlay/
+├── web/
 │   ├── server.js
-│   └── public/
+│   └── overlay/
 │       ├── index.html
 │       ├── css/
 │       │   ├── preset1.css
@@ -373,17 +394,14 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Contributing
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+Contributions are welcome! Please open an issue or submit a pull request.
 
 ## Support
 
 For support and questions:
 - Create an issue on GitHub
 - Check existing documentation
+- I also speak Indonesian, so don't hesitate to make an issue or ask questions in Indonesian.
 
 ---
 
