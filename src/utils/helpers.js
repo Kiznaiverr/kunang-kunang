@@ -18,6 +18,14 @@ module.exports = {
     },
 
     /**
+     * @param {number} ms - Time in milliseconds.
+     * @returns {Promise<void>}
+     */
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    },
+
+    /**
      * Check whether the given URL is valid.
      *
      * @param {string} str - The URL string.
