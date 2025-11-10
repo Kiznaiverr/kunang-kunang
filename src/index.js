@@ -1,6 +1,7 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { Player } = require('discord-player');
 const { SoundCloudExtractor } = require('./extractors/SoundCloudExtractor');
+const { YouTubeExtractor } = require('./extractors/YouTubeExtractor');
 const OverlayServer = require('./web/server');
 const TikTokBridge = require('./utils/TikTokBridge');
 const config = require('./config');
@@ -44,6 +45,9 @@ class MusicBot {
 
     async init() {
         
+        await this.player.extractors.register(YouTubeExtractor, {});
+        await this.delay(1000);
+        
         await this.player.extractors.register(SoundCloudExtractor, {});
         await this.delay(1000);
 
@@ -54,7 +58,6 @@ class MusicBot {
         this.loadCommands();
         await this.delay(1000);
         
-        // Create overlay server instance before events
         this.overlayServer = new OverlayServer(this);
         
         this.loadEvents();
@@ -63,7 +66,6 @@ class MusicBot {
         await this.client.login(process.env.DISCORD_BOT_TOKEN);
         await this.delay(1000);
         
-        // Bot is now ready
         console.log(chalk.green(`Logged in as ${this.client.user.tag}`));
         console.log(chalk.green(`Bot is ready! Serving ${this.client.guilds.cache.size} server`));
         
@@ -75,7 +77,6 @@ class MusicBot {
         
         this.initTikTokBridge();
         
-        // Initialize overlay server after TikTok bridge
         this.overlayServer.start();
         await this.delay(1000);
     }

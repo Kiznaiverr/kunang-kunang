@@ -52,7 +52,7 @@ module.exports = {
 
         // Additional logging events
         bot.player.events.on('audioTrackAdd', (queue, track) => {
-            console.log(chalk.yellow(`Track added: ${track.title}`));
+            console.log(chalk.yellow(`Track added: ${track.title} from: ${track.source || 'unknown'}`));
         });
 
         bot.player.events.on('emptyChannel', (queue) => {
