@@ -2,6 +2,7 @@ const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { Player } = require('discord-player');
 const { SoundCloudExtractor } = require('./extractors/SoundCloudExtractor');
 const { YouTubeExtractor } = require('./extractors/YouTubeExtractor');
+const { SpotifyBridgeExtractor } = require('./extractors/SpotifyBridgeExtractor');
 const OverlayServer = require('./web/server');
 const TikTokBridge = require('./utils/TikTokBridge');
 const config = require('./config');
@@ -48,6 +49,9 @@ class MusicBot {
         await this.player.extractors.register(YouTubeExtractor, {});
         await this.delay(1000);
         
+        await this.player.extractors.register(SpotifyBridgeExtractor, {});
+        await this.delay(1000);
+
         await this.player.extractors.register(SoundCloudExtractor, {});
         await this.delay(1000);
 
