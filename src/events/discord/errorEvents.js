@@ -1,16 +1,16 @@
-const chalk = require('chalk');
+const { Logger } = require('../../utils/logging');
 
 module.exports = {
     registerErrorEvents(client, bot) {
         bot.player.events.on('error', (queue, error) => {
-            console.error(chalk.red(`General player error: ${error.message}`));
+            Logger.error(`General player error: ${error.message}`);
             if (queue.metadata) {
                 queue.metadata.reply('Something went wrong with Kunang-Kunang!');
             }
         });
 
         bot.player.events.on('playerError', (queue, error) => {
-            console.error(chalk.red(`Player error: ${error.message}`));
+            Logger.error(`Player error: ${error.message}`);
             if (queue.metadata) {
                 queue.metadata.reply('Error occurred while playing the track!');
             }
@@ -33,7 +33,7 @@ module.exports = {
 
         // Disconnect event logging
         bot.player.events.on('disconnect', (queue) => {
-            console.log(chalk.yellow('Bot disconnected from voice channel'));
+            Logger.warn('Bot disconnected from voice channel');
         });
     }
 };

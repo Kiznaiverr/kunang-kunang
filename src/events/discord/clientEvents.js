@@ -1,4 +1,4 @@
-const chalk = require('chalk');
+const { Logger } = require('../../utils/logging');
 
 module.exports = {
     registerClientEvents(client, bot) {
@@ -15,7 +15,8 @@ module.exports = {
             try {
                 command.execute(message, args, bot);
             } catch (error) {
-                console.error(chalk.red(`Error executing command ${commandName}:`), error);
+                Logger.error(`Error executing command ${commandName}: ${error.message}`);
+                console.error(error);  // For easier debugging, keep this line
                 message.reply('There was an error executing that command!');
             }
         });
