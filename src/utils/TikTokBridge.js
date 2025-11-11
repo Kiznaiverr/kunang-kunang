@@ -136,7 +136,7 @@ class TikTokBridge {
             this.stats.messagesReceived++;
             this.stats.lastActivity = new Date();
 
-            const { uniqueId: username, comment: message } = data;
+            const { uniqueId: username, comment: message, user } = data;
             
             if (!this.isValidCommand(message)) {
                 return;
@@ -149,6 +149,12 @@ class TikTokBridge {
             
             if (!command) {
                 this.log('warn', `Command '${commandName}' not found`);
+                return;
+            }
+
+            // Check if user has permission to use this command
+            if (!this.hasCommandPermission(username, commandName, user)) {
+                this.log('warn', `User ${username} does not have permission to use command '${commandName}'`);
                 return;
             }
 
@@ -193,6 +199,37 @@ class TikTokBridge {
     }
 
     /**
+     * Check if user has permission to use a command
+     */
+    hasCommandPermission(username, commandName, user) {
+        const allowedCommands = ['play', 'help', 'nowplaying', 'queue'];
+        
+        if (allowedCommands.includes(commandName)) {
+            return true; // Everyone can use these commands
+        }
+        
+        // Check if user is host or moderator
+        return this.isPrivilegedUser(username, user);
+    }
+
+    /**
+     * Check if user is privileged (host or moderator from TikTok)
+     */
+    isPrivilegedUser(username, user) {
+        // Host
+        if (username === this.config.username) {
+            return true;
+        }
+        
+        // Moderator from TikTok data
+        if (user && user.isModerator) {
+            return true;
+        }
+        
+        return false;
+    }
+
+    /**
      * Get Discord command by name
      */
     getDiscordCommand(commandName) {
@@ -224,8 +261,7 @@ class TikTokBridge {
             content: message,
             author: this.createTikTokUser(username),
             guild: guild,
-            member: this.createTikTokMember(voiceChannel),
-            reply: this.createReplyHandler(username)
+            member: this.createTikTokMember(voiceChannel)
         };
     }
 
@@ -280,28 +316,6 @@ class TikTokBridge {
             },
             roles: {
                 cache: new Map() // Empty roles
-            }
-        };
-    }
-
-    /**
-     * Create reply handler for TikTok responses
-     */
-    createReplyHandler(username) {
-        return async (content) => {
-            try {
-                if (typeof content === 'string') {
-                    this.log('reply', `To ${username}: ${content}`);
-                } else if (content.embeds && content.embeds[0]) {
-                    const embed = content.embeds[0];
-                    const title = embed.title || embed.author?.name || 'Response';
-                    const description = embed.description || 'No description';
-                    this.log('reply', `To ${username}: ${title} - ${description}`);
-                } else {
-                    this.log('reply', `To ${username}: [Complex response]`);
-                }
-            } catch (error) {
-                this.log('error', `Error in reply handler: ${error.message}`);
             }
         };
     }
