@@ -321,6 +321,7 @@ src/
 │   │   └── errorEvents.js
 │   └── discordEvents.js
 ├── extractors/
+│   ├── index.js
 │   ├── SoundCloudExtractor.js
 │   ├── YouTubeExtractor.js
 │   └── SpotifyBridgeExtractor.js
@@ -362,9 +363,21 @@ module.exports = {
 ### Custom Music Sources
 
 1. Create extractor in `src/extractors/`
-2. Register in `src/index.js`:
+2. Add export to `src/extractors/index.js`:
 
 ```javascript
+const { YourExtractor } = require('./YourExtractor');
+
+module.exports = {
+    // ... existing exports
+    YourExtractor
+};
+```
+
+3. Register in `src/index.js`:
+
+```javascript
+const { YourExtractor } = require('./extractors');
 await this.player.extractors.register(YourExtractor, {});
 ```
 

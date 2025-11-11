@@ -1,8 +1,6 @@
 const { Client, GatewayIntentBits, Collection } = require('discord.js');
 const { Player } = require('discord-player');
-const { SoundCloudExtractor } = require('./extractors/SoundCloudExtractor');
-const { YouTubeExtractor } = require('./extractors/YouTubeExtractor');
-const { SpotifyBridgeExtractor } = require('./extractors/SpotifyBridgeExtractor');
+const { SoundCloudExtractor, YouTubeExtractor, SpotifyBridgeExtractor } = require('./extractors');
 const OverlayServer = require('./web/server');
 const TikTokBridge = require('./utils/TikTokBridge');
 const config = require('./config');
