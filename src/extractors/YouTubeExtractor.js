@@ -91,7 +91,7 @@ class YouTubeExtractor extends BaseExtractor {
     }
 
     isYouTubeURL(url) {
-        const youtubeUrlRegex = /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/v\/)/;
+        const youtubeUrlRegex = /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=[^&\n?#]+|youtu\.be\/[^&\n?#]+|youtube\.com\/embed\/[^&\n?#]+|youtube\.com\/v\/[^&\n?#]+)/;
         return youtubeUrlRegex.test(url);
     }
 
