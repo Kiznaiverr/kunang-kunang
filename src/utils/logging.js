@@ -82,11 +82,11 @@ class Logger {
                 console.error(chalk.red(msg));
                 break;
             case 'command':
-                msg = util.format(msgTemplate, `Command: ${message}`);  // Format the message
+                msg = util.format(msgTemplate, message);  // Format the message
                 console.log(chalk.magenta(msg));
                 break;
             case 'reply':
-                msg = util.format(msgTemplate, `Reply: ${message}`);  // Format the message
+                msg = util.format(msgTemplate, message);  // Format the message
                 console.log(chalk.cyan(msg));
                 break;
             default:  // 'debug' level

@@ -1,4 +1,5 @@
 const { useQueue } = require('discord-player');
+const { Logger } = require('../utils/logging');
 
 function calculateTotalDuration(currentTrack, tracks) {
     try {
@@ -38,6 +39,7 @@ module.exports = {
     name: 'queue',
     description: 'Show the current queue',
     execute: async (message, args, bot) => {
+        Logger.command('queue', message.author.username);
         const queue = useQueue(message.guild.id);
 
         if (!queue || queue.isEmpty()) {

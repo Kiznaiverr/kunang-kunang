@@ -5,6 +5,7 @@ module.exports = {
     name: 'skip',
     description: 'Skip the current song',
     execute: async (message, args, bot) => {
+        Logger.command('skip', message.author.username);
         if (!message.member.voice.channel) {
             const embed = {
                 color: 0xff0000,

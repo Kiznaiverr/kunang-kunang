@@ -1,10 +1,12 @@
 const config = require('../config');
+const { Logger } = require('../utils/logging');
 
 module.exports = {
     name: 'tiktok',
     aliases: ['tt', 'bridge'],
     description: 'Show TikTok Bridge status and statistics',
     execute: async (message, args, bot) => {
+        Logger.command(`tiktok ${args.join(' ')}`, message.author.username);
         const subcommand = args[0]?.toLowerCase();
         
         if (!bot.tiktokBridge) {

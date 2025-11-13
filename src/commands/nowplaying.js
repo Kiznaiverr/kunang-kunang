@@ -1,10 +1,12 @@
 const { useQueue } = require('discord-player');
+const { Logger } = require('../utils/logging');
 
 module.exports = {
     name: 'nowplaying',
     aliases: ['np', 'current'],
     description: 'Show the currently playing track',
     execute: async (message, args, bot) => {
+        Logger.command('nowplaying', message.author.username);
         const queue = useQueue(message.guild.id);
 
         if (!queue || !queue.currentTrack) {

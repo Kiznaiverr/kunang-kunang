@@ -5,6 +5,7 @@ module.exports = {
     name: 'pause',
     description: 'Pause the current track',
     execute: async (message, args, bot) => {
+        Logger.command('pause', message.author.username);
         if (!message.member.voice.channel) {
             const embed = {
                 color: 0xff0000,

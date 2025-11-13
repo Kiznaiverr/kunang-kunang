@@ -5,6 +5,7 @@ module.exports = {
     name: 'stop',
     description: 'Stop the music and clear the queue',
     execute: async (message, args, bot) => {
+        Logger.command('stop', message.author.username);
         if (!message.member.voice.channel) {
             const embed = {
                 color: 0xff0000,

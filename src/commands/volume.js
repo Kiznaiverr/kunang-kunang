@@ -6,6 +6,7 @@ module.exports = {
     aliases: ['vol'],
     description: 'Set or check the volume',
     execute: async (message, args, bot) => {
+        Logger.command(`volume ${args.join(' ')}`, message.author.username);
         if (!message.member.voice.channel) {
             const embed = {
                 color: 0xff0000,

@@ -1,9 +1,11 @@
 const { useQueue } = require('discord-player');
+const { Logger } = require('../utils/logging');
 
 module.exports = {
     name: 'resume',
     description: 'Resume the paused track',
     execute: async (message, args, bot) => {
+        Logger.command('resume', message.author.username);
         if (!message.member.voice.channel) {
             const embed = {
                 color: 0xff0000,

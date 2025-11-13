@@ -5,6 +5,7 @@ module.exports = {
     name: 'shuffle',
     description: 'Shuffle the queue',
     execute: async (message, args, bot) => {
+        Logger.command('shuffle', message.author.username);
         if (!message.member.voice.channel) {
             const embed = {
                 color: 0xff0000,

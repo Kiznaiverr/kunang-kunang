@@ -6,6 +6,7 @@ module.exports = {
     name: 'play',
     description: 'Play a song',
     execute: async (message, args, bot) => {
+        Logger.command(`play ${args.join(' ')}`, message.author.username);
         const player = useMainPlayer();
 
         if (!message.member.voice.channel) {

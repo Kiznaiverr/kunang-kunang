@@ -5,6 +5,7 @@ module.exports = {
     name: 'leave',
     description: 'Leave the voice channel',
     execute: async (message, args, bot) => {
+        Logger.command('leave', message.author.username);
         if (!message.member.voice.channel) {
             const embed = {
                 color: 0xff0000,

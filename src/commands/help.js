@@ -7,6 +7,7 @@ module.exports = {
     aliases: ['h', 'commands'],
     description: 'Show all available commands',
     execute: async (message, args, bot) => {
+        Logger.command('help', message.author.username);
         try {
             const commandsPath = path.join(__dirname);
             const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
