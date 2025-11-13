@@ -10,6 +10,7 @@ module.exports = {
         const queue = useQueue(message.guild.id);
 
         if (!queue || !queue.currentTrack) {
+            Logger.debug(`Nowplaying command: No active track playing in guild ${message.guild.name}`);
             const embed = {
                 color: 0xff0000,
                 description: '**Nothing is currently playing!**',
@@ -21,6 +22,7 @@ module.exports = {
         const track = queue.currentTrack;
         const progress = queue.node.createProgressBar();
         
+        Logger.debug(`Nowplaying command: Displaying current track "${track.title}" in guild ${message.guild.name}`);
         const embed = {
             color: 0x2f3136,
             author: {

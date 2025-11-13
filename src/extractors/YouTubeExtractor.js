@@ -1,67 +1,96 @@
 const { BaseExtractor } = require('discord-player');
 const { youtube, yts } = require('btch-downloader');
+const { Logger } = require('../utils/logging');
 
 class YouTubeExtractor extends BaseExtractor {
     static identifier = 'youtube';
 
     async activate() {
+        Logger.debug('YouTubeExtractor: Activating extractor...');
         return true;
     }
 
     async validate(query) {
-        return this.isYouTubeURL(query);
+        const isValid = this.isYouTubeURL(query);
+        Logger.debug(`YouTubeExtractor: Validating query "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}" - ${isValid ? 'valid YouTube URL' : 'not a YouTube URL'}`);
+        return isValid;
     }
 
     async handle(query) {
+        Logger.debug(`YouTubeExtractor: Handling query: "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}"`);
+        
         try {
             let tracks = [];
 
             if (this.isYouTubeURL(query)) {
+                Logger.debug('YouTubeExtractor: Processing YouTube URL...');
                 const data = await youtube(query);
                 if (data && data.result) {
                     tracks = [this.convertToTrackData(data.result)];
+                    Logger.debug('YouTubeExtractor: Retrieved single video from URL');
                 } else if (data) {
                     tracks = [this.convertToTrackData(data)];
+                    Logger.debug('YouTubeExtractor: Retrieved video data from URL');
+                } else {
+                    Logger.debug('YouTubeExtractor: No video data found for URL');
                 }
             } else {
+                Logger.debug('YouTubeExtractor: Performing search...');
                 const searchData = await yts(query);
                 if (searchData && searchData.result && searchData.result.videos) {
                     tracks = searchData.result.videos.slice(0, 10).map(video => this.convertToTrackData(video));
+                    Logger.debug(`YouTubeExtractor: Search returned ${tracks.length} videos`);
+                } else {
+                    Logger.debug('YouTubeExtractor: No search results found');
                 }
             }
 
+            Logger.debug(`YouTubeExtractor: Returning ${tracks.length} tracks`);
             return {
                 playlist: null,
                 tracks: tracks
             };
         } catch (error) {
-            console.error('YouTube extractor error:', error.message);
+            Logger.error(`YouTubeExtractor error: ${error.message}`);
+            Logger.debug(`YouTubeExtractor: Handle method failed - ${error.message}`);
             return { playlist: null, tracks: [] };
         }
     }
 
     async stream(info) {
+        Logger.debug(`YouTubeExtractor: Streaming track: "${info.title}"`);
+        
         try {
+            // Try to get stream from raw data first
             if (info.raw && info.raw.mp3) {
+                Logger.debug('YouTubeExtractor: Using cached MP3 stream URL');
                 return info.raw.mp3;
             }
             if (info.raw && info.raw.mp4) {
+                Logger.debug('YouTubeExtractor: Using cached MP4 stream URL');
                 return info.raw.mp4;
             }
 
+            // Fetch fresh data if needed
             if (info.url && this.isYouTubeURL(info.url)) {
+                Logger.debug('YouTubeExtractor: Fetching fresh stream data...');
                 const data = await youtube(info.url);
                 if (data && data.mp3) {
+                    Logger.debug('YouTubeExtractor: Retrieved MP3 stream URL');
                     return data.mp3;
                 }
                 if (data && data.mp4) {
+                    Logger.debug('YouTubeExtractor: Retrieved MP4 stream URL');
                     return data.mp4;
                 }
+                Logger.debug('YouTubeExtractor: No stream URLs found in fresh data');
             }
 
+            Logger.debug(`YouTubeExtractor: Unable to extract stream for: ${info.title}`);
             throw new Error(`Unable to extract stream for: ${info.title}`);
         } catch (error) {
-            console.error('YouTube stream error:', error.message);
+            Logger.error(`YouTubeExtractor stream error: ${error.message}`);
+            Logger.debug(`YouTubeExtractor: Stream method failed - ${error.message}`);
             throw error;
         }
     }

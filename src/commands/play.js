@@ -7,9 +7,12 @@ module.exports = {
     description: 'Play a song',
     execute: async (message, args, bot) => {
         Logger.command(`play ${args.join(' ')}`, message.author.username);
+        Logger.debug(`Play command initiated by ${message.author.username} in guild ${message.guild.name}`, 'PlayCommand');
+        
         const player = useMainPlayer();
 
         if (!message.member.voice.channel) {
+            Logger.debug('User not in voice channel', 'PlayCommand');
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -36,6 +39,7 @@ module.exports = {
         }
 
         const query = args.join(' ');
+        Logger.debug(`Searching for: "${query}"`, 'PlayCommand');
 
         try {
             // Don't specify searchEngine parameter - let extractors validate naturally
@@ -44,7 +48,10 @@ module.exports = {
                 requestedBy: message.user
             });
 
+            Logger.debug(`Search completed, found ${searchResult?.tracks?.length || 0} tracks`, 'PlayCommand');
+
             if (!searchResult || !searchResult.tracks.length) {
+                Logger.debug('No search results found', 'PlayCommand');
                 const noResultEmbed = {
                     color: 0xff0000,
                     description: `**No results found for:** \`${query}\``,
@@ -60,11 +67,14 @@ module.exports = {
                 }
             });
 
+            Logger.debug(`Track queued: ${track.title} by ${track.author}`, 'PlayCommand');
+
             const { useQueue } = require('discord-player');
             const queue = useQueue(message.guild.id);
             const queuePosition = queue ? queue.tracks.size + 1 : 1;
 
             if (message.author.id.startsWith('tiktok_')) {
+                Logger.debug('Track requested from TikTok, sending to text channel', 'PlayCommand');
                 const textChannel = message.guild.channels.cache.get(process.env.DISCORD_CHANNEL_ID);
                 if (textChannel) {
                     const tiktokEmbed = {
@@ -131,6 +141,7 @@ module.exports = {
             };
             return message.reply({ embeds: [successEmbed] });
         } catch (error) {
+            Logger.debug(`Play command failed: ${error.message}`, 'PlayCommand');
             Logger.error(`Play command error: ${error.message}`);
             console.error(error);
             

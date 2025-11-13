@@ -6,7 +6,10 @@ module.exports = {
     description: 'Shuffle the queue',
     execute: async (message, args, bot) => {
         Logger.command('shuffle', message.author.username);
+        Logger.debug(`Shuffle command initiated by ${message.author.username} in guild ${message.guild.name}`, 'ShuffleCommand');
+        
         if (!message.member.voice.channel) {
+            Logger.debug('User not in voice channel', 'ShuffleCommand');
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -35,6 +38,7 @@ module.exports = {
         }
 
         if (queue.tracks.size < 2) {
+            Logger.debug(`Shuffle command: Not enough tracks in queue (${queue.tracks.size}) - minimum 2 required`);
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -49,6 +53,7 @@ module.exports = {
 
         try {
             queue.tracks.shuffle();
+            Logger.debug(`Shuffle command: Successfully shuffled ${queue.tracks.size} tracks in queue`);
             const embed = {
                 color: 0x9932cc,
                 title: 'Queue Shuffled',

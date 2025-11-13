@@ -6,7 +6,10 @@ module.exports = {
     description: 'Pause the current track',
     execute: async (message, args, bot) => {
         Logger.command('pause', message.author.username);
+        Logger.debug(`Pause command initiated by ${message.author.username} in guild ${message.guild.name}`, 'PauseCommand');
+        
         if (!message.member.voice.channel) {
+            Logger.debug('User not in voice channel', 'PauseCommand');
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -22,6 +25,7 @@ module.exports = {
         const queue = useQueue(message.guild.id);
 
         if (!queue || !queue.node.isPlaying()) {
+            Logger.debug('No active queue or not playing', 'PauseCommand');
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -35,6 +39,7 @@ module.exports = {
         }
 
         if (queue.node.isPaused()) {
+            Logger.debug('Music is already paused', 'PauseCommand');
             const embed = {
                 color: 0xff0000,
                 title: 'Already Paused',
@@ -50,6 +55,7 @@ module.exports = {
         try {
             queue.node.pause();
             const track = queue.currentTrack;
+            Logger.debug(`Paused track: ${track.title}`, 'PauseCommand');
             const embed = {
                 color: 0x2f3136,
                 author: {
@@ -67,6 +73,7 @@ module.exports = {
             };
             return message.reply({ embeds: [embed] });
         } catch (error) {
+            Logger.debug(`Pause command failed: ${error.message}`, 'PauseCommand');
             Logger.error(`Pause command error: ${error.message}`);
             console.error(error);
             const embed = {

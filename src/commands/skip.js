@@ -6,7 +6,10 @@ module.exports = {
     description: 'Skip the current song',
     execute: async (message, args, bot) => {
         Logger.command('skip', message.author.username);
+        Logger.debug(`Skip command initiated by ${message.author.username} in guild ${message.guild.name}`, 'SkipCommand');
+        
         if (!message.member.voice.channel) {
+            Logger.debug('User not in voice channel', 'SkipCommand');
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -22,6 +25,7 @@ module.exports = {
         const queue = useQueue(message.guild.id);
 
         if (!queue || !queue.node.isPlaying()) {
+            Logger.debug('No active queue or not playing', 'SkipCommand');
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -35,6 +39,7 @@ module.exports = {
         }
 
         if (message.guild.members.me.voice.channelId && message.member.voice.channel.id !== message.guild.members.me.voice.channelId) {
+            Logger.debug('User not in same voice channel as bot', 'SkipCommand');
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -51,6 +56,7 @@ module.exports = {
             const currentTrack = queue.currentTrack;
             
             if (!currentTrack) {
+                Logger.debug('No current track to skip', 'SkipCommand');
                 const embed = {
                     color: 0xff0000,
                     title: 'Error',
@@ -64,6 +70,7 @@ module.exports = {
             }
 
             queue.node.skip();
+            Logger.debug(`Skipped track: ${currentTrack.title}`, 'SkipCommand');
             const embed = {
                 color: 0x2f3136,
                 author: {
@@ -81,6 +88,7 @@ module.exports = {
             };
             return message.reply({ embeds: [embed] });
         } catch (error) {
+            Logger.debug(`Skip command failed: ${error.message}`, 'SkipCommand');
             Logger.error(`Skip command error: ${error.message}`);
             console.error(error);
             const embed = {

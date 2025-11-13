@@ -10,6 +10,7 @@ module.exports = {
         const subcommand = args[0]?.toLowerCase();
         
         if (!bot.tiktokBridge) {
+            Logger.debug(`TikTok command: TikTok Bridge not available for user ${message.author.username}`);
             const embed = {
                 color: 0xff0000,
                 title: 'TikTok Bridge Not Available',
@@ -22,18 +23,22 @@ module.exports = {
         switch (subcommand) {
             case 'stats':
             case 'status':
+                Logger.debug(`TikTok command: Executing stats/status subcommand for user ${message.author.username}`);
                 await this.showStats(message, bot);
                 break;
                 
             case 'disconnect':
+                Logger.debug(`TikTok command: Executing disconnect subcommand for user ${message.author.username}`);
                 await this.disconnectBridge(message, bot);
                 break;
                 
             case 'reconnect':
+                Logger.debug(`TikTok command: Executing reconnect subcommand for user ${message.author.username}`);
                 await this.reconnectBridge(message, bot);
                 break;
                 
             default:
+                Logger.debug(`TikTok command: Executing default status subcommand for user ${message.author.username}`);
                 await this.showStatus(message, bot);
                 break;
         }
@@ -43,6 +48,7 @@ module.exports = {
         const bridge = bot.tiktokBridge;
         const stats = bridge.getStats();
         
+        Logger.debug(`TikTok showStatus: Displaying bridge status - Connected: ${stats.isConnected}, Username: ${stats.username || 'Not configured'}`);
         const embed = {
             color: stats.isConnected ? 0x00ff00 : 0xff0000,
             author: {
@@ -78,6 +84,7 @@ module.exports = {
         const bridge = bot.tiktokBridge;
         const stats = bridge.getStats();
         
+        Logger.debug(`TikTok showStats: Displaying detailed statistics - Commands: ${stats.commandsProcessed}, Messages: ${stats.messagesReceived}`);
         // Format uptime
         const uptimeMs = stats.uptime;
         const uptimeStr = this.formatUptime(uptimeMs);
@@ -130,6 +137,7 @@ module.exports = {
         const bridge = bot.tiktokBridge;
         
         if (!bridge.isConnected) {
+            Logger.debug(`TikTok disconnectBridge: Bridge already disconnected for user ${message.author.username}`);
             const embed = {
                 color: 0xffaa00,
                 description: '**TikTok Bridge is already disconnected!**',
@@ -140,6 +148,7 @@ module.exports = {
         
         bridge.disconnect();
         
+        Logger.debug(`TikTok disconnectBridge: Bridge manually disconnected by user ${message.author.username}`);
         const embed = {
             color: 0xff0000,
             author: {
@@ -156,6 +165,7 @@ module.exports = {
         const bridge = bot.tiktokBridge;
         
         if (bridge.isConnected) {
+            Logger.debug(`TikTok reconnectBridge: Bridge already connected for user ${message.author.username}`);
             const embed = {
                 color: 0xffaa00,
                 description: '**TikTok Bridge is already connected!**',
@@ -174,6 +184,7 @@ module.exports = {
         
         const success = await bridge.start();
         
+        Logger.debug(`TikTok reconnectBridge: Reconnection attempt ${success ? 'successful' : 'failed'} for user ${message.author.username}`);
         const resultEmbed = {
             color: success ? 0x00ff00 : 0xff0000,
             author: {

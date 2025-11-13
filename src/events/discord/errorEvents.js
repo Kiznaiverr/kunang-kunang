@@ -2,7 +2,10 @@ const { Logger } = require('../../utils/logging');
 
 module.exports = {
     registerErrorEvents(client, bot) {
+        Logger.debug('Registering error events', 'ErrorEvents');
+        
         bot.player.events.on('error', (queue, error) => {
+            Logger.debug(`General player error in guild ${queue?.guild?.name}: ${error.message}`, 'ErrorEvents');
             Logger.error(`General player error: ${error.message}`);
             if (queue.metadata) {
                 queue.metadata.reply('Something went wrong with Kunang-Kunang!');
@@ -10,6 +13,7 @@ module.exports = {
         });
 
         bot.player.events.on('playerError', (queue, error) => {
+            Logger.debug(`Player error in guild ${queue?.guild?.name}: ${error.message}`, 'ErrorEvents');
             Logger.error(`Player error: ${error.message}`);
             if (queue.metadata) {
                 queue.metadata.reply('Error occurred while playing the track!');
@@ -33,6 +37,7 @@ module.exports = {
 
         // Disconnect event logging
         bot.player.events.on('disconnect', (queue) => {
+            Logger.debug(`Bot disconnected from voice channel in guild ${queue?.guild?.name}`, 'ErrorEvents');
             Logger.info('Bot disconnected from voice channel');
         });
     }

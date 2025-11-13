@@ -8,9 +8,12 @@ module.exports = {
     description: 'Show all available commands',
     execute: async (message, args, bot) => {
         Logger.command('help', message.author.username);
+        Logger.debug(`Help command initiated by ${message.author.username}`, 'HelpCommand');
+        
         try {
             const commandsPath = path.join(__dirname);
             const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
+            Logger.debug(`Found ${commandFiles.length} command files`, 'HelpCommand');
             
             const commands = [];
             
@@ -97,6 +100,7 @@ module.exports = {
             return message.reply({ embeds: [embed] });
             
         } catch (error) {
+            Logger.debug(`Help command failed: ${error.message}`, 'HelpCommand');
             Logger.error(`Error in help command: ${error.message}`);
             console.error(error);
             

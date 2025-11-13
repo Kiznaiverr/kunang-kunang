@@ -40,9 +40,12 @@ module.exports = {
     description: 'Show the current queue',
     execute: async (message, args, bot) => {
         Logger.command('queue', message.author.username);
+        Logger.debug(`Queue command initiated by ${message.author.username} in guild ${message.guild.name}`, 'QueueCommand');
+        
         const queue = useQueue(message.guild.id);
 
         if (!queue || queue.isEmpty()) {
+            Logger.debug('Queue is empty', 'QueueCommand');
             const embed = {
                 color: 0xff0000,
                 description: '**The queue is empty!**',
@@ -53,6 +56,8 @@ module.exports = {
 
         const currentTrack = queue.currentTrack;
         const tracks = queue.tracks.toArray();
+        
+        Logger.debug(`Queue has ${tracks.length + 1} total tracks (1 playing + ${tracks.length} queued)`, 'QueueCommand');
 
         const embed = {
             color: 0x2f3136,

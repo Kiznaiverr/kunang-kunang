@@ -2,8 +2,12 @@ const { Logger } = require('../../utils/logging');
 
 module.exports = {
     registerPlayerEvents(client, bot) {
+        Logger.debug('Registering player events', 'PlayerEvents');
+        
         // Track start event - when a song starts playing
         bot.player.events.on('playerStart', (queue, track) => {
+            Logger.debug(`Player started: ${track.title} in guild ${queue.guild.name}`, 'PlayerEvents');
+            
             if (queue.metadata && !queue.metadata.author.id.startsWith('tiktok_')) {
                 const embed = {
                     color: 0x2f3136,
@@ -44,6 +48,8 @@ module.exports = {
         });
 
         bot.player.events.on('audioTrackAdd', (queue, track) => {
+            Logger.debug(`Track added to queue: ${track.title} (${track.source})`, 'PlayerEvents');
+            
             if (bot.overlayServer) {
                 const currentTrack = queue.currentTrack;
                 bot.overlayServer.updateStatus(currentTrack, queue);
@@ -56,10 +62,13 @@ module.exports = {
         });
 
         bot.player.events.on('emptyChannel', (queue) => {
+            Logger.debug(`Voice channel empty in guild ${queue.guild.name}`, 'PlayerEvents');
             Logger.info('Voice channel is empty');
         });
 
         bot.player.events.on('queueFinish', (queue) => {
+            Logger.debug(`Queue finished in guild ${queue.guild.name}`, 'PlayerEvents');
+            
             if (queue.metadata) {
                 const embed = {
                     color: 0xffff00,

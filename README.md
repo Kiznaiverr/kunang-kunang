@@ -4,7 +4,7 @@
 
 ### Discord Music Bot with TikTok Live Integration
 
-*A Discord music bot built with discord.js v14 and discord-player v7.1.x, featuring TikTok live chat integration for cross-platform music control.*
+*A Discord music bot built with discord.js v14 and discord-player v7.1.x, featuring TikTok live chat integration for cross-platform music control, real-time web overlay for streaming, and advanced logging system.*
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org)
 [![Discord.js](https://img.shields.io/badge/Discord.js-v14-blue.svg)](https://discord.js.org)
@@ -59,6 +59,7 @@
 - Environment variables
 - Customizable settings
 - Easy deployment
+- Advanced logging
 
 </td>
 </tr>
@@ -100,6 +101,9 @@ COMMAND_COOLDOWN=5000
 # SoundCloud API credentials (Required)
 SOUNDCLOUD_CLIENT_ID=your_soundcloud_client_id
 SOUNDCLOUD_OAUTH_TOKEN=your_soundcloud_oauth_token
+
+# Logging Configuration (Optional)
+LOG_LEVEL=info  # debug, info, success, warn, error, command, reply
 ```
 
 <details>
@@ -165,6 +169,56 @@ SOUNDCLOUD_OAUTH_TOKEN=your_soundcloud_oauth_token
 | `!tiktok reconnect` | - | Reconnect TikTok bridge |
 
 </details>
+
+## Logging System
+
+Kunang-Kunang features a comprehensive logging system for monitoring and debugging bot operations.
+
+### Log Levels
+
+| Level | Description | Use Case |
+|-------|-------------|----------|
+| `debug` | Detailed debugging information | Development and troubleshooting |
+| `info` | General information | Normal operation monitoring |
+| `success` | Successful operations | Confirming important actions |
+| `warn` | Warning messages | Potential issues |
+| `error` | Error messages | Failures and exceptions |
+| `command` | Command executions | User command tracking |
+| `reply` | Bot responses | Response monitoring |
+
+### Configuration
+
+Set the `LOG_LEVEL` environment variable to control verbosity:
+
+```env
+LOG_LEVEL=debug  # Show all log levels
+LOG_LEVEL=info   # Show info, success, warn, error, command, reply
+LOG_LEVEL=warn   # Show only warnings and errors
+```
+
+### Log Categories
+
+The bot logs activities across multiple components:
+
+- **Bot Initialization**: Startup sequence and component loading
+- **Command Processing**: User commands and TikTok bridge commands  
+- **Music Operations**: Playback, queue management, and streaming
+- **Extractor Activities**: Music source detection and processing (YouTube, SoundCloud, Spotify)
+- **Web Overlay**: Server operations and API requests
+- **TikTok Integration**: Bridge connections and message processing
+- **Error Handling**: Failures and recovery attempts
+
+### Example Log Output
+
+```
+[15.26.56] [INFO] Logged in as BotName#0000
+[15.26.57] [COMMAND] play - username
+[15.26.58] [DEBUG] YouTubeExtractor: Processing YouTube URL...
+[15.26.59] [SUCCESS] Connected to @tiktokuser
+[15.27.00] [DEBUG] OverlayServer: NowPlaying API called - preset: 2
+[15.27.01] [WARN] Queue is empty
+[15.27.02] [ERROR] Failed to connect to TikTok
+```
 
 ## TikTok Live Integration
 
@@ -326,6 +380,8 @@ src/
 │   ├── YouTubeExtractor.js
 │   └── SpotifyBridgeExtractor.js
 ├── utils/
+│   ├── logging.js
+│   ├── helpers.js
 │   └── TikTokBridge.js
 ├── web/
 │   ├── server.js
@@ -395,9 +451,14 @@ bot.player.events.on('eventName', (queue, data) => {
 
 ### Planned Features
 
+- [x] **Advanced logging system** with 7 configurable verbosity levels
+- [x] **Comprehensive debug logging** across all components
 - [x] **Sending message when a command is triggered from TikTok**
 - [x] **Add other music platforms (YouTube, Spotify)**
+- [x] **Enhanced error handling and recovery**
 - [ ] **Make TikTok chat assistant**
+- [ ] **Add playlist support for all platforms**
+- [ ] **Create web dashboard for bot management**
 
 ---
 

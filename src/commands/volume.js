@@ -7,7 +7,10 @@ module.exports = {
     description: 'Set or check the volume',
     execute: async (message, args, bot) => {
         Logger.command(`volume ${args.join(' ')}`, message.author.username);
+        Logger.debug(`Volume command initiated by ${message.author.username} with args: [${args.join(', ')}]`, 'VolumeCommand');
+        
         if (!message.member.voice.channel) {
+            Logger.debug('User not in voice channel', 'VolumeCommand');
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -23,6 +26,7 @@ module.exports = {
         const queue = useQueue(message.guild.id);
 
         if (!queue || !queue.node.isPlaying()) {
+            Logger.debug('No active queue or not playing', 'VolumeCommand');
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -36,6 +40,7 @@ module.exports = {
         }
 
         if (!args.length) {
+            Logger.debug(`Checking current volume: ${queue.node.volume}%`, 'VolumeCommand');
             const embed = {
                 color: 0x0099ff,
                 title: 'Current Volume',
@@ -51,6 +56,7 @@ module.exports = {
         const volume = parseInt(args[0]);
 
         if (isNaN(volume) || volume < 0 || volume > 100) {
+            Logger.debug(`Invalid volume value: ${args[0]}`, 'VolumeCommand');
             const embed = {
                 color: 0xff0000,
                 title: 'Invalid Volume',
@@ -65,6 +71,7 @@ module.exports = {
 
         try {
             queue.node.setVolume(volume);
+            Logger.debug(`Volume changed from ${queue.node.volume}% to ${volume}%`, 'VolumeCommand');
             const embed = {
                 color: 0x00ff00,
                 title: 'Volume Changed',
@@ -83,6 +90,7 @@ module.exports = {
             };
             return message.reply({ embeds: [embed] });
         } catch (error) {
+            Logger.debug(`Volume command failed: ${error.message}`, 'VolumeCommand');
             Logger.error(`Volume command error: ${error.message}`);
             console.error(error);
             const embed = {

@@ -7,6 +7,7 @@ module.exports = {
     execute: async (message, args, bot) => {
         Logger.command('resume', message.author.username);
         if (!message.member.voice.channel) {
+            Logger.debug(`Resume command: User ${message.author.username} not in voice channel`);
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -22,6 +23,7 @@ module.exports = {
         const queue = useQueue(message.guild.id);
 
         if (!queue || !queue.currentTrack) {
+            Logger.debug(`Resume command: No active queue or current track in guild ${message.guild.name}`);
             const embed = {
                 color: 0xff0000,
                 title: 'Error',
@@ -35,6 +37,7 @@ module.exports = {
         }
 
         if (!queue.node.isPaused()) {
+            Logger.debug(`Resume command: Queue is not paused in guild ${message.guild.name}`);
             const embed = {
                 color: 0xff0000,
                 title: 'Not Paused',
@@ -49,6 +52,7 @@ module.exports = {
 
         try {
             queue.node.resume();
+            Logger.debug(`Resume command: Successfully resumed track "${queue.currentTrack.title}" in guild ${message.guild.name}`);
             const track = queue.currentTrack;
             const embed = {
                 color: 0x00ff00,
@@ -72,6 +76,7 @@ module.exports = {
             };
             return message.reply({ embeds: [embed] });
         } catch (error) {
+            Logger.error(`Resume command error: ${error.message}`);
             console.error('Resume command error:', error);
             const embed = {
                 color: 0xff0000,
