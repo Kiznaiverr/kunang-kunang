@@ -38,7 +38,7 @@ class TikTokBridge {
      */
     async start() {
         if (!this.config.enabled) {
-            Logger.log('info', 'TikTok bridge is disabled in configuration');
+            Logger.warn('TikTok bridge is disabled in configuration');
             return false;
         }
 
@@ -46,13 +46,13 @@ class TikTokBridge {
             return false;
         }
 
-        Logger.log('info', `Connecting to @${this.config.username}...`);
+        Logger.info(`Connecting to @${this.config.username}...`);
         
         try {
             await this.initializeConnection();
             return true;
         } catch (error) {
-            Logger.log('error', `Connection failed: ${error.message}`);
+            Logger.error(`Connection failed: ${error.message}`);
             await this.handleConnectionFailure(error);
             return false;
         }
@@ -63,17 +63,17 @@ class TikTokBridge {
      */
     validateConfiguration() {
         if (!this.config.username) {
-            Logger.log('warn', 'Username not configured in environment variables');
+            Logger.warn('Username not configured in environment variables');
             return false;
         }
 
         if (!this.config.targetGuildId) {
-            Logger.log('warn', 'Discord Guild ID not configured');
+            Logger.warn('Discord Guild ID not configured');
             return false;
         }
 
         if (!this.config.targetChannelId) {
-            Logger.log('warn', 'Discord Voice Channel ID not configured');
+            Logger.warn('Discord Voice Channel ID not configured');
             return false;
         }
 
@@ -105,7 +105,7 @@ class TikTokBridge {
      * Handle successful connection
      */
     handleConnected() {
-        Logger.log('success', `Connected to @${this.config.username}`);
+        Logger.success(`Connected to @${this.config.username}`);
         this.isConnected = true;
         this.reconnectAttempts = 0;
         this.stats.connectTime = new Date();
@@ -115,7 +115,7 @@ class TikTokBridge {
      * Handle disconnection
      */
     handleDisconnected() {
-        Logger.log('warn', `Disconnected from @${this.config.username}`);
+        Logger.warn(`Disconnected from @${this.config.username}`);
         this.isConnected = false;
         this.stats.connectTime = null;
     }
@@ -124,7 +124,7 @@ class TikTokBridge {
      * Handle connection errors
      */
     handleError(error) {
-        Logger.log('error', `Connection error: ${error.message}`);
+        Logger.error(`Connection error: ${error.message}`);
         this.isConnected = false;
     }
 
@@ -142,19 +142,19 @@ class TikTokBridge {
                 return;
             }
 
-            Logger.log('command', `${username} -> ${message}`);
+            Logger.command(`${username} -> ${message}`);
             
             const { commandName, args } = this.parseCommand(message);
             const command = this.getDiscordCommand(commandName);
             
             if (!command) {
-                Logger.log('warn', `Command '${commandName}' not found`);
+                Logger.warn(`Command '${commandName}' not found`);
                 return;
             }
 
             // Check if user has permission to use this command
             if (!this.hasCommandPermission(username, commandName, user)) {
-                this.log('warn', `User ${username} does not have permission to use command '${commandName}'`);
+                Logger.warn(`User ${username} does not have permission to use command '${commandName}'`);
                 return;
             }
 
@@ -162,7 +162,7 @@ class TikTokBridge {
             this.stats.commandsProcessed++;
             
         } catch (error) {
-            Logger.log('error', `Error handling chat message: ${error.message}`);
+            Logger.error(`Error handling chat message: ${error.message}`);
         }
     }
 
@@ -246,7 +246,7 @@ class TikTokBridge {
         try {
             await command.execute(fakeMessage, args, this.bot);
         } catch (error) {
-            Logger.log('error', `Error executing command '${command.name}': ${error.message}`);
+            Logger.error(`Error executing command '${command.name}': ${error.message}`);
         }
     }
 
@@ -271,7 +271,7 @@ class TikTokBridge {
     getTargetGuild() {
         const guild = this.bot.client.guilds.cache.get(this.config.targetGuildId);
         if (!guild) {
-            Logger.log('warn', `Target guild ${this.config.targetGuildId} not found`);
+            Logger.warn(`Target guild ${this.config.targetGuildId} not found`);
         }
         return guild;
     }
@@ -284,7 +284,7 @@ class TikTokBridge {
         
         const channel = guild.channels.cache.get(this.config.targetChannelId);
         if (!channel) {
-            Logger.log('warn', `Target voice channel ${this.config.targetChannelId} not found`);
+            Logger.warn(`Target voice channel ${this.config.targetChannelId} not found`);
         }
         return channel;
     }
@@ -327,17 +327,17 @@ class TikTokBridge {
         return async (content) => {
             try {
                 if (typeof content === 'string') {
-                    Logger.log('reply', `To ${username}: ${content}`);
+                    Logger.reply(`To ${username}: ${content}`);
                 } else if (content.embeds && content.embeds[0]) {
                     const embed = content.embeds[0];
                     const title = embed.title || embed.author?.name || 'Response';
                     const description = embed.description || 'No description';
-                    Logger.log('reply', `To ${username}: ${title} - ${description}`);
+                    Logger.reply(`To ${username}: ${title} - ${description}`);
                 } else {
-                    Logger.log('reply', `To ${username}: [Complex response]`);
+                    Logger.reply(`To ${username}: [Complex response]`);
                 }
             } catch (error) {
-                Logger.log('error', `Error in reply handler: ${error.message}`);
+                Logger.error(`Error in reply handler: ${error.message}`);
             }
         };
     }
@@ -348,13 +348,13 @@ class TikTokBridge {
     async handleConnectionFailure(error) {
         if (this.reconnectAttempts < this.config.maxReconnectAttempts) {
             this.reconnectAttempts++;
-            Logger.log('info', `Reconnection attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${this.config.reconnectDelay/1000}s...`);
+            Logger.info(`Reconnection attempt ${this.reconnectAttempts}/${this.config.maxReconnectAttempts} in ${this.config.reconnectDelay/1000}s...`);
             
             setTimeout(() => {
                 this.start();
             }, this.config.reconnectDelay);
         } else {
-            Logger.log('error', 'Max reconnection attempts reached. TikTok Bridge disabled.');
+            Logger.error('Max reconnection attempts reached. TikTok Bridge disabled.');
         }
     }
 
@@ -379,7 +379,7 @@ class TikTokBridge {
             this.connection = null;
             this.isConnected = false;
             this.stats.connectTime = null;
-            Logger.log('info', 'TikTok Bridge disconnected');
+            Logger.info('TikTok Bridge disconnected');
         }
     }
 }

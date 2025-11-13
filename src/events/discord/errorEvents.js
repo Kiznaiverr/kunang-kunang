@@ -33,7 +33,7 @@ module.exports = {
 
         // Disconnect event logging
         bot.player.events.on('disconnect', (queue) => {
-            Logger.warn('Bot disconnected from voice channel');
+            Logger.info('Bot disconnected from voice channel');
         });
     }
 };

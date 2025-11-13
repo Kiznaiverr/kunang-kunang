@@ -52,11 +52,11 @@ module.exports = {
 
         // Additional logging events
         bot.player.events.on('audioTrackAdd', (queue, track) => {
-            Logger.warn(`Track added: ${track.title} from: ${track.source || 'unknown'}`);
+            Logger.info(`Track added: ${track.title} from: ${track.source || 'unknown'}`);
         });
 
         bot.player.events.on('emptyChannel', (queue) => {
-            Logger.warn('Voice channel is empty');
+            Logger.info('Voice channel is empty');
         });
 
         bot.player.events.on('queueFinish', (queue) => {
@@ -78,7 +78,7 @@ module.exports = {
                 bot.overlayServer.updateStatus(null, queue);
             }
 
-            Logger.warn('Queue is empty');
+            Logger.info('Queue is empty');
         });
     }
 };
