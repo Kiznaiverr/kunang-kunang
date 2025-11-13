@@ -1,4 +1,5 @@
 const { useQueue } = require('discord-player');
+const { Logger } = require('../utils/logging');
 
 module.exports = {
     name: 'volume',
@@ -81,7 +82,8 @@ module.exports = {
             };
             return message.reply({ embeds: [embed] });
         } catch (error) {
-            console.error('Volume command error:', error);
+            Logger.error(`Volume command error: ${error.message}`);
+            console.error(error);
             const embed = {
                 color: 0xff0000,
                 title: 'Error',

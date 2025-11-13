@@ -1,6 +1,6 @@
 const { useMainPlayer } = require('discord-player');
-const chalk = require('chalk');
 const config = require('../config');
+const { Logger } = require('../utils/logging');
 
 module.exports = {
     name: 'play',
@@ -130,7 +130,8 @@ module.exports = {
             };
             return message.reply({ embeds: [successEmbed] });
         } catch (error) {
-            console.error(chalk.red('Play command error:'), error);
+            Logger.error(`Play command error: ${error.message}`);
+            console.error(error);
             
             let errorMessage = 'Something went wrong while trying to play that track!';
             

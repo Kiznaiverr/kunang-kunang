@@ -1,4 +1,4 @@
-const chalk = require('chalk');
+const { Logger } = require('../../utils/logging');
 
 module.exports = {
     registerPlayerEvents(client, bot) {
@@ -38,7 +38,7 @@ module.exports = {
 
             // Update overlay
             if (bot.overlayServer) {
-                console.log(chalk.blue('Updating overlay with track start'));
+                Logger.info('Updating overlay with track start');
                 bot.overlayServer.updateStatus(track, queue);
             }
         });
@@ -52,11 +52,11 @@ module.exports = {
 
         // Additional logging events
         bot.player.events.on('audioTrackAdd', (queue, track) => {
-            console.log(chalk.yellow(`Track added: ${track.title} from: ${track.source || 'unknown'}`));
+            Logger.warn(`Track added: ${track.title} from: ${track.source || 'unknown'}`);
         });
 
         bot.player.events.on('emptyChannel', (queue) => {
-            console.log(chalk.yellow('Voice channel is empty'));
+            Logger.warn('Voice channel is empty');
         });
 
         bot.player.events.on('queueFinish', (queue) => {
@@ -74,11 +74,11 @@ module.exports = {
             }
 
             if (bot.overlayServer) {
-                console.log(chalk.blue('Updating overlay with queue finish'));
+                Logger.info('Updating overlay with queue finish');
                 bot.overlayServer.updateStatus(null, queue);
             }
 
-            console.log(chalk.yellow('Queue is empty'));
+            Logger.warn('Queue is empty');
         });
     }
 };

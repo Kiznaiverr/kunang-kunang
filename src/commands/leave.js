@@ -1,4 +1,5 @@
 const { useQueue } = require('discord-player');
+const { Logger } = require('../utils/logging');
 
 module.exports = {
     name: 'leave',
@@ -69,7 +70,8 @@ module.exports = {
             };
             return message.reply({ embeds: [embed] });
         } catch (error) {
-            console.error('Leave command error:', error);
+            Logger.error(`Leave command error: ${error.message}`);
+            console.error(error);
             const embed = {
                 color: 0xff0000,
                 title: 'Error',

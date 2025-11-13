@@ -1,4 +1,5 @@
 const { useQueue } = require('discord-player');
+const { Logger } = require('../utils/logging');
 
 module.exports = {
     name: 'pause',
@@ -65,7 +66,8 @@ module.exports = {
             };
             return message.reply({ embeds: [embed] });
         } catch (error) {
-            console.error('Pause command error:', error);
+            Logger.error(`Pause command error: ${error.message}`);
+            console.error(error);
             const embed = {
                 color: 0xff0000,
                 title: 'Error',

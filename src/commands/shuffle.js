@@ -1,4 +1,5 @@
 const { useQueue } = require('discord-player');
+const { Logger } = require('../utils/logging');
 
 module.exports = {
     name: 'shuffle',
@@ -70,7 +71,8 @@ module.exports = {
             };
             return message.reply({ embeds: [embed] });
         } catch (error) {
-            console.error('Shuffle command error:', error);
+            Logger.error(`Shuffle command error: ${error.message}`);
+            console.error(error);
             const embed = {
                 color: 0xff0000,
                 title: 'Error',

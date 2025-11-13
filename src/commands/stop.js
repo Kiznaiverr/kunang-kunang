@@ -1,5 +1,5 @@
 const { useQueue } = require('discord-player');
-const chalk = require('chalk');
+const { Logger } = require('../utils/logging');
 
 module.exports = {
     name: 'stop',
@@ -60,7 +60,8 @@ module.exports = {
             };
             return message.reply({ embeds: [embed] });
         } catch (error) {
-            console.error(chalk.red('Stop command error:'), error);
+            Logger.error(`Stop command error: ${error.message}`);
+            console.error(error);
             const embed = {
                 color: 0xff0000,
                 title: 'Error',

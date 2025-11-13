@@ -7,6 +7,8 @@ const config = require('./config');
 const chalk = require('chalk');
 const fs = require('fs');
 const path = require('path');
+const { Logger } = require('./utils/logging');
+const { sleep } = require('./utils/helpers');
 require('dotenv').config();
 
 class MusicBot {
@@ -37,39 +39,33 @@ class MusicBot {
         this.init();
     }
 
-    // Helper function for delay
-    delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
     async init() {
-        
         await this.player.extractors.register(YouTubeExtractor, {});
-        await this.delay(1000);
-        
+        await sleep(1000);
+
         await this.player.extractors.register(SpotifyBridgeExtractor, {});
-        await this.delay(1000);
+        await sleep(1000);
 
         await this.player.extractors.register(SoundCloudExtractor, {});
-        await this.delay(1000);
+        await sleep(1000);
 
         const extractors = Array.from(this.player.extractors.store.keys());
         console.log(chalk.yellow('Extractors registered:\n' + extractors.join('\n')));
-        await this.delay(1000);
-        
+        await sleep(1000);
+
         this.loadCommands();
-        await this.delay(1000);
-        
+        await sleep(1000);
+
         this.overlayServer = new OverlayServer(this);
-        
+
         this.loadEvents();
-        await this.delay(1000);
-        
+        await sleep(1000);
+
         await this.client.login(process.env.DISCORD_BOT_TOKEN);
-        await this.delay(1000);
-        
-        console.log(chalk.green(`Logged in as ${this.client.user.tag}`));
-        console.log(chalk.green(`Bot is ready! Serving ${this.client.guilds.cache.size} server`));
+        await sleep(1000);
+
+        Logger.success(`Logged in as ${this.client.user.tag}`);
+        Logger.success(`Bot is ready! Serving ${this.client.guilds.cache.size} server`);
         
         if (config.bot.activity.name) {
             this.client.user.setActivity(config.bot.activity.name, { 
@@ -78,9 +74,8 @@ class MusicBot {
         }
         
         this.initTikTokBridge();
-        
         this.overlayServer.start();
-        await this.delay(1000);
+        await sleep(1000);
     }
 
     loadCommands() {
@@ -93,24 +88,24 @@ class MusicBot {
             this.commands.set(command.name, command);
         }
         
-        console.log(chalk.green(`Loaded ${this.commands.size} commands`));
+        Logger.success(`Loaded ${this.commands.size} commands`);
     }
 
     loadEvents() {
         const discordEvents = require('./events/discordEvents');
         discordEvents.registerEvents(this.client, this);
         
-        console.log(chalk.green('Discord events registered'));
+        Logger.success('Discord events registered');
     }
 
     async initTikTokBridge() {
-        await this.delay(1000);
+        await sleep(1000);
         
         this.tiktokBridge = new TikTokBridge(this);
-        await this.delay(1000);
+        await sleep(1000);
         
         await this.tiktokBridge.start();
-        await this.delay(1000);
+        await sleep(1000);
     }
 }
 

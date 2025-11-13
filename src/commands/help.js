@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { Logger } = require('../utils/logging');
 
 module.exports = {
     name: 'help',
@@ -23,7 +24,7 @@ module.exports = {
                         });
                     }
                 } catch (error) {
-                    console.warn(`Could not load command from ${file}:`, error.message);
+                    Logger.warn(`Could not load command from ${file}: ${error.message}`);
                 }
             }
             
@@ -95,7 +96,8 @@ module.exports = {
             return message.reply({ embeds: [embed] });
             
         } catch (error) {
-            console.error('Error in help command:', error);
+            Logger.error(`Error in help command: ${error.message}`);
+            console.error(error);
             
             const embed = {
                 color: 0xff0000,
