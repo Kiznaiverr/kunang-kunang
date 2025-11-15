@@ -1,4 +1,4 @@
-import express from "express";
+import express, { Request, Response, NextFunction } from "express";
 import path from "path";
 import fs from "fs";
 import { fileURLToPath } from 'url';
@@ -8,8 +8,20 @@ import { Logger } from "../utils/logging.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+interface OverlayStatus {
+  current: any;
+  queue: any[];
+  isPlaying: boolean;
+  lastUpdate: number;
+}
+
 class OverlayServer {
-  constructor(bot) {
+  bot: any;
+  app: any;
+  currentStatus: OverlayStatus;
+  server: any;
+
+  constructor(bot: any) {
     Logger.debug('OverlayServer: Initializing overlay server...');
     this.bot = bot;
     this.app = express();
@@ -27,27 +39,25 @@ class OverlayServer {
     Logger.debug('OverlayServer: Overlay server initialization complete');
   }
 
-  setupMiddleware() {
-    const overlayPath = path.join(__dirname, "overlay");
-    Logger.debug(`OverlayServer: Serving static files from ${overlayPath}`);
-    this.app.use(express.static(overlayPath));
+    setupMiddleware() {
+        const overlayPath = path.join(__dirname, "overlay");
+        Logger.debug(`OverlayServer: Serving static files from ${overlayPath}`);
+        this.app.use(express.static(overlayPath));
 
-    // CORS for development
-    Logger.debug('OverlayServer: Setting up CORS middleware');
-    this.app.use((req, res, next) => {
-      res.header("Access-Control-Allow-Origin", "*");
-      res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-      res.header("Access-Control-Allow-Headers", "Content-Type");
-      next();
-    });
-    Logger.debug('OverlayServer: Middleware setup complete');
-  }
-
-  setupRoutes() {
+        // CORS for development
+        Logger.debug('OverlayServer: Setting up CORS middleware');
+        this.app.use((req: Request, res: Response, next: NextFunction) => {
+            res.header("Access-Control-Allow-Origin", "*");
+            res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+            res.header("Access-Control-Allow-Headers", "Content-Type");
+            next();
+        });
+        Logger.debug('OverlayServer: Middleware setup complete');
+    }  setupRoutes() {
     Logger.debug('OverlayServer: Setting up API routes...');
     
     // API endpoint for current status
-    this.app.get("/api/nowplaying", (req, res) => {
+    this.app.get("/api/nowplaying", (req: Request, res: Response) => {
       const overlayPreset = config.overlay?.preset || 1;
       Logger.debug(`OverlayServer: NowPlaying API called - preset: ${overlayPreset}, polling: ${config.overlay.pollingInterval}ms`);
 
@@ -59,7 +69,7 @@ class OverlayServer {
     });
 
     // Test endpoint for manual overlay update
-    this.app.post("/api/test-update", (req, res) => {
+    this.app.post("/api/test-update", (req: Request, res: Response) => {
       Logger.debug('OverlayServer: Test update API called - updating with mock data');
       
       // Mock track data for testing
@@ -98,7 +108,7 @@ class OverlayServer {
     });
 
     // Serve overlay HTML as default
-    this.app.get("/", (req, res) => {
+    this.app.get("/", (req: Request, res: Response) => {
       const indexPath = path.join(__dirname, "overlay/index.html");
       Logger.debug(`OverlayServer: Root route called - serving overlay from ${indexPath}`);
       
@@ -132,7 +142,7 @@ class OverlayServer {
     Logger.debug('OverlayServer: Route setup complete');
   }
 
-  updateStatus(track, queue) {
+  updateStatus(track: any, queue: any) {
     Logger.debug(`OverlayServer: Updating status - track: ${track?.title || 'null'}, queue tracks: ${queue?.tracks?.size || 0}`);
     
     // Delay update to ensure queue is updated
@@ -152,7 +162,7 @@ class OverlayServer {
           queue && queue.tracks
             ? queue.tracks
                 .toArray()
-                .map((t) => ({
+                .map((t: any) => ({
                   title: t.title,
                   author: t.author,
                   requestedBy: t.requestedBy?.username || "Unknown",
@@ -184,8 +194,9 @@ class OverlayServer {
       });
       return true;
     } catch (error) {
-      Logger.error("Failed to start overlay server:", error.message);
-      Logger.debug(`OverlayServer: Failed to start server on port ${port} - ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      Logger.error("Failed to start overlay server:", errorMessage);
+      Logger.debug(`OverlayServer: Failed to start server on port ${port} - ${errorMessage}`);
       return false;
     }
   }

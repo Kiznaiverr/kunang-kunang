@@ -1,34 +1,32 @@
-import { BaseExtractor } from 'discord-player';
+import { BaseExtractor, ExtractorSearchContext, ExtractorInfo } from 'discord-player';
 import { spotify } from 'btch-downloader';
 import { Soundcloud } from 'soundcloud.ts';
 import { Logger } from '../utils/logging.js';
 
 class SpotifyBridgeExtractor extends BaseExtractor {
     static identifier = 'spotify-bridge';
+    soundcloud: Soundcloud | null = null;
 
-    soundcloud = null;
-
-    async activate() {
+    async activate(): Promise<void> {
         Logger.debug('SpotifyBridgeExtractor: Activating extractor...');
         this.soundcloud = new Soundcloud(
             process.env.SOUNDCLOUD_CLIENT_ID,
             process.env.SOUNDCLOUD_OAUTH_TOKEN
         );
-        Logger.debug('SpotifyBridgeExtractor: SoundCloud client initialized for Spotify bridge');
-        return true;
+        Logger.debug('SpotifyBridgeExtractor: SoundCloud client initialized');
     }
 
-    async validate(query) {
+    async validate(query: string): Promise<boolean> {
         const isValid = this.isSpotifyURL(query);
         Logger.debug(`SpotifyBridgeExtractor: Validating query "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}" - ${isValid ? 'valid Spotify URL' : 'not a Spotify URL'}`);
         return isValid;
     }
 
-    async handle(query) {
+    async handle(query: string, context: ExtractorSearchContext): Promise<ExtractorInfo> {
         Logger.debug(`SpotifyBridgeExtractor: Handling query: "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}"`);
         
         try {
-            let tracks = [];
+            let tracks: any[] = [];
 
             if (this.isSpotifyURL(query)) {
                 Logger.debug('SpotifyBridgeExtractor: Processing Spotify URL...');
@@ -39,19 +37,19 @@ class SpotifyBridgeExtractor extends BaseExtractor {
                     return { playlist: null, tracks: [] };
                 }
 
-                const metadata = spotifyData.result;
+                const metadata = spotifyData.result as any;
                 Logger.debug(`SpotifyBridgeExtractor: Retrieved Spotify metadata - "${metadata.title}" by ${metadata.artist}`);
 
                 const searchQuery = `${metadata.title} ${metadata.artist || ''}`.trim();
                 Logger.debug(`SpotifyBridgeExtractor: Searching SoundCloud for: "${searchQuery}"`);
 
                 try {
-                    const scSearchResults = await this.soundcloud.tracks.search({
+                    const scSearchResults = await this.soundcloud!.tracks.search({
                         q: searchQuery,
                         limit: 5
                     });
 
-                    const scTracks = scSearchResults.collection || scSearchResults || [];
+                    const scTracks = (scSearchResults.collection || scSearchResults || []) as any[];
                     Logger.debug(`SpotifyBridgeExtractor: SoundCloud search returned ${scTracks.length} results`);
 
                     if (scTracks.length > 0) {
@@ -63,8 +61,9 @@ class SpotifyBridgeExtractor extends BaseExtractor {
                         Logger.debug('SpotifyBridgeExtractor: No SoundCloud tracks found for Spotify song');
                     }
                 } catch (scError) {
-                    Logger.error(`SpotifyBridgeExtractor: SoundCloud search error: ${scError.message}`);
-                    Logger.debug(`SpotifyBridgeExtractor: SoundCloud search failed - ${scError.message}`);
+                    const errorMessage = scError instanceof Error ? scError.message : String(scError);
+                    Logger.error(`SpotifyBridgeExtractor: SoundCloud search error: ${errorMessage}`);
+                    Logger.debug(`SpotifyBridgeExtractor: SoundCloud search failed - ${errorMessage}`);
                 }
             } else {
                 Logger.debug('SpotifyBridgeExtractor: Query is not a Spotify URL, skipping');
@@ -74,15 +73,16 @@ class SpotifyBridgeExtractor extends BaseExtractor {
             return {
                 playlist: null,
                 tracks: tracks
-            };
+            } as unknown as ExtractorInfo;
         } catch (error) {
-            Logger.error(`SpotifyBridgeExtractor error: ${error.message}`);
-            Logger.debug(`SpotifyBridgeExtractor: Handle method failed - ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Logger.error(`SpotifyBridgeExtractor error: ${errorMessage}`);
+            Logger.debug(`SpotifyBridgeExtractor: Handle method failed - ${errorMessage}`);
             return { playlist: null, tracks: [] };
         }
     }
 
-    async stream(info) {
+    async stream(info: any): Promise<string | any> {
         Logger.debug(`SpotifyBridgeExtractor: Streaming track: "${info.title}"`);
         
         try {
@@ -90,7 +90,7 @@ class SpotifyBridgeExtractor extends BaseExtractor {
             if (info.raw && info.raw.permalink_url) {
                 Logger.debug('SpotifyBridgeExtractor: Attempting SoundCloud streamTrack utility...');
                 try {
-                    const stream = await this.soundcloud.util.streamTrack(info.raw.permalink_url);
+                    const stream = await this.soundcloud!.util.streamTrack(info.raw.permalink_url);
                     Logger.debug('SpotifyBridgeExtractor: StreamTrack utility successful');
                     return stream;
                 } catch (streamError) {
@@ -105,7 +105,7 @@ class SpotifyBridgeExtractor extends BaseExtractor {
                     // Re-fetch track info
                     Logger.debug('SpotifyBridgeExtractor: Attempting to refetch SoundCloud track info...');
                     try {
-                        const freshTrack = await this.soundcloud.tracks.get(info.raw.id);
+                        const freshTrack = await this.soundcloud!.tracks.get(info.raw.id);
                         if (freshTrack.media?.transcodings?.length > 0) {
                             const transcoding = freshTrack.media.transcodings.find(t => 
                                 t.format?.protocol === 'progressive' && t.format?.mime_type?.includes('audio')
@@ -119,8 +119,9 @@ class SpotifyBridgeExtractor extends BaseExtractor {
                         }
                         Logger.debug('SpotifyBridgeExtractor: No suitable transcoding found');
                     } catch (refetchError) {
-                        Logger.error(`SpotifyBridgeExtractor: Refetch error: ${refetchError.message}`);
-                        Logger.debug(`SpotifyBridgeExtractor: Refetch failed - ${refetchError.message}`);
+                        const errorMessage = refetchError instanceof Error ? refetchError.message : String(refetchError);
+                        Logger.error(`SpotifyBridgeExtractor: Refetch error: ${errorMessage}`);
+                        Logger.debug(`SpotifyBridgeExtractor: Refetch failed - ${errorMessage}`);
                     }
                 }
             }
@@ -128,13 +129,14 @@ class SpotifyBridgeExtractor extends BaseExtractor {
             Logger.debug(`SpotifyBridgeExtractor: Unable to extract stream for: ${info.title}`);
             throw new Error(`Unable to extract stream for: ${info.title}`);
         } catch (error) {
-            Logger.error(`SpotifyBridgeExtractor stream error: ${error.message}`);
-            Logger.debug(`SpotifyBridgeExtractor: Stream method failed - ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Logger.error(`SpotifyBridgeExtractor stream error: ${errorMessage}`);
+            Logger.debug(`SpotifyBridgeExtractor: Stream method failed - ${errorMessage}`);
             throw error;
         }
     }
 
-    convertToTrackData(scTrack, spotifyMetadata) {
+    convertToTrackData(scTrack: any, spotifyMetadata: any): any {
         return {
             title: spotifyMetadata?.title || scTrack.title || 'Unknown Title',
             description: scTrack.description || '',
@@ -158,12 +160,12 @@ class SpotifyBridgeExtractor extends BaseExtractor {
         };
     }
 
-    isSpotifyURL(url) {
+    isSpotifyURL(url: string): boolean {
         const spotifyUrlRegex = /^(https?:\/\/(open\.)?spotify\.com\/(track|album|playlist)\/[\w]+|spotify:(track|album|playlist):[\w]+)/;
         return spotifyUrlRegex.test(url);
     }
 
-    formatDuration(ms) {
+    formatDuration(ms: number): string {
         if (!ms) return '0:00';
         const seconds = Math.floor(ms / 1000);
         const minutes = Math.floor(seconds / 60);

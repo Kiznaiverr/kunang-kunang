@@ -1,6 +1,8 @@
 import util from 'node:util';
 import chalk from 'chalk';
 
+type LogLevel = 'debug' | 'info' | 'success' | 'warn' | 'error' | 'command' | 'reply';
+
 /**
  * Logger class for logging messages with different levels and colors.
  * Provides static methods for logging with timestamps and optional prefixes.
@@ -11,7 +13,7 @@ class Logger {
      * @static
      * @returns {string} The minimum log level
      */
-    static getMinLevel() {
+    static getMinLevel(): string | undefined {
         return process.env.LOG_LEVEL;
     }
 
@@ -21,10 +23,10 @@ class Logger {
      * @param {string} level - The level to check
      * @returns {boolean} Whether the level should be logged
      */
-    static shouldLog(level) {
-        const levels = ['debug', 'info', 'success', 'warn', 'error', 'command', 'reply'];
+    static shouldLog(level: LogLevel): boolean {
+        const levels: LogLevel[] = ['debug', 'info', 'success', 'warn', 'error', 'command', 'reply'];
         const minLevel = this.getMinLevel();
-        const minIndex = levels.indexOf(minLevel);
+        const minIndex = levels.indexOf(minLevel as LogLevel);
         const currentIndex = levels.indexOf(level);
 
         if (minIndex === -1 || currentIndex === -1) return true; // Fallback to show all if invalid level
@@ -45,14 +47,11 @@ class Logger {
      *
      * @static
      * @method
-     * @param {("debug" | "info" | "success" | "warn" | "error" | "command" | "reply")?} level
-     *        The logging level.
+     * @param {LogLevel} level - The logging level.
      * @param {string} message - Log message string.
      * @param {string} [prefix] - Optional prefix to use for the log message.
      */
-    static log(level, message, prefix) {
-        if (!level) level = 'debug';
-
+    static log(level: LogLevel = 'debug', message: string, prefix?: string): void {
         // Check if this level should be logged based on minimum level
         if (!this.shouldLog(level)) return;
 
@@ -60,7 +59,7 @@ class Logger {
         const levelUpper = level.toUpperCase();
         // Declare first message template to be used later, note the `%s` template
         const msgTemplate = `[${timestamp}] [${levelUpper}]${prefix ? ` ${prefix}:` : ''} %s`;
-        let msg;  // Dump variable to store the formatted message
+        let msg: string;  // Dump variable to store the formatted message
 
         switch (level) {
             case 'success':
@@ -95,38 +94,37 @@ class Logger {
         }
     }
 
-    /** Alias for `Logger.log('success', ...)` */
-    static success(message, prefix) {
+    static success(message: string, prefix?: string) {
         Logger.log('success', message, prefix);
     }
 
     /** Alias for `Logger.log('info', ...)` */
-    static info(message, prefix) {
+    static info(message: string, prefix?: string) {
         Logger.log('info', message, prefix);
     }
 
     /** Alias for `Logger.log('warn', ...)` */
-    static warn(message, prefix) {
+    static warn(message: string, prefix?: string) {
         Logger.log('warn', message, prefix);
     }
 
     /** Alias for `Logger.log('error', ...)` */
-    static error(message, prefix) {
+    static error(message: string, prefix?: string) {
         Logger.log('error', message, prefix);
     }
 
     /** Alias for `Logger.log('command', ...)` */
-    static command(message, prefix) {
+    static command(message: string, prefix?: string) {
         Logger.log('command', message, prefix);
     }
 
     /** Alias for `Logger.log('reply', ...)` */
-    static reply(message, prefix) {
+    static reply(message: string, prefix?: string) {
         Logger.log('reply', message, prefix);
     }
 
     /** Alias for `Logger.log('debug', ...)` */
-    static debug(message, prefix) {
+    static debug(message: string, prefix?: string) {
         Logger.log('debug', message, prefix);
     }
 }

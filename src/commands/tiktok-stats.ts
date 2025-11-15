@@ -1,17 +1,17 @@
 import config from '../config.js';
+import { Message, EmbedBuilder } from 'discord.js';
 import { Logger } from '../utils/logging.js';
+import { Command } from '../types/command.js';
 
-async function showStatus(message, bot) {
+async function showStatus(message: Message, bot: any) {
     const bridge = bot.tiktokBridge;
     const stats = bridge.getStats();
     
     Logger.debug(`TikTok showStatus: Displaying bridge status - Connected: ${stats.isConnected}, Username: ${stats.username || 'Not configured'}`);
-    const embed = {
-        color: stats.isConnected ? 0x00ff00 : 0xff0000,
-        author: {
-            name: 'TikTok Bridge Status'
-        },
-        fields: [
+    const embed = new EmbedBuilder()
+        .setColor(stats.isConnected ? 0x00ff00 : 0xff0000)
+        .setAuthor({ name: 'TikTok Bridge Status' })
+        .addFields(
             {
                 name: 'Connection Status',
                 value: stats.isConnected ? '🟢 Connected' : '🔴 Disconnected',
@@ -27,17 +27,14 @@ async function showStatus(message, bot) {
                 value: `\`${config.bot.prefix}tiktok stats\` - Detailed statistics\n\`${config.bot.prefix}tiktok disconnect\` - Disconnect bridge\n\`${config.bot.prefix}tiktok reconnect\` - Reconnect bridge`,
                 inline: false
             }
-        ],
-        timestamp: new Date(),
-        footer: {
-            text: 'TikTok Live Bridge'
-        }
-    };
+        )
+        .setTimestamp()
+        .setFooter({ text: 'TikTok Live Bridge' });
     
     return message.reply({ embeds: [embed] });
 }
 
-async function showStats(message, bot) {
+async function showStats(message: Message, bot: any) {
     const bridge = bot.tiktokBridge;
     const stats = bridge.getStats();
     
@@ -51,12 +48,10 @@ async function showStats(message, bot) {
         ? formatRelativeTime(stats.lastActivity)
         : 'No activity';
     
-    const embed = {
-        color: stats.isConnected ? 0x00ff00 : 0xff0000,
-        author: {
-            name: 'TikTok Bridge Statistics'
-        },
-        fields: [
+    const embed = new EmbedBuilder()
+        .setColor(stats.isConnected ? 0x00ff00 : 0xff0000)
+        .setAuthor({ name: 'TikTok Bridge Statistics' })
+        .addFields(
             {
                 name: 'Connection Info',
                 value: `**Status:** ${stats.isConnected ? '🟢 Connected' : '🔴 Disconnected'}\n**Target:** @${stats.username || 'Not configured'}\n**Uptime:** ${uptimeStr}`,
@@ -72,15 +67,12 @@ async function showStats(message, bot) {
                 value: `**Guild ID:** ${bridge.config.targetGuildId || 'Not set'}\n**Channel ID:** ${bridge.config.targetChannelId || 'Not set'}\n**Prefix:** \`${bridge.config.prefix}\``,
                 inline: false
             }
-        ],
-        timestamp: new Date(),
-        footer: {
-            text: 'Statistics since last connection'
-        }
-    };
+        )
+        .setTimestamp()
+        .setFooter({ text: 'Statistics since last connection' });
     
     if (stats.connectTime) {
-        embed.fields.push({
+        embed.addFields({
             name: 'Connected Since',
             value: stats.connectTime.toLocaleString(),
             inline: true
@@ -90,73 +82,64 @@ async function showStats(message, bot) {
     return message.reply({ embeds: [embed] });
 }
 
-async function disconnectBridge(message, bot) {
+async function disconnectBridge(message: Message, bot: any) {
     const bridge = bot.tiktokBridge;
     
     if (!bridge.isConnected) {
         Logger.debug(`TikTok disconnectBridge: Bridge already disconnected for user ${message.author.username}`);
-        const embed = {
-            color: 0xffaa00,
-            description: '**TikTok Bridge is already disconnected!**',
-            timestamp: new Date()
-        };
+        const embed = new EmbedBuilder()
+            .setColor(0xffaa00)
+            .setDescription('**TikTok Bridge is already disconnected!**')
+            .setTimestamp();
         return message.reply({ embeds: [embed] });
     }
     
     bridge.disconnect();
     
     Logger.debug(`TikTok disconnectBridge: Bridge manually disconnected by user ${message.author.username}`);
-    const embed = {
-        color: 0xff0000,
-        author: {
-            name: 'TikTok Bridge Disconnected'
-        },
-        description: 'TikTok Bridge has been manually disconnected.',
-        timestamp: new Date()
-    };
+    const embed = new EmbedBuilder()
+        .setColor(0xff0000)
+        .setAuthor({ name: 'TikTok Bridge Disconnected' })
+        .setDescription('TikTok Bridge has been manually disconnected.')
+        .setTimestamp();
     
     return message.reply({ embeds: [embed] });
 }
 
-async function reconnectBridge(message, bot) {
+async function reconnectBridge(message: Message, bot: any) {
     const bridge = bot.tiktokBridge;
     
     if (bridge.isConnected) {
         Logger.debug(`TikTok reconnectBridge: Bridge already connected for user ${message.author.username}`);
-        const embed = {
-            color: 0xffaa00,
-            description: '**TikTok Bridge is already connected!**',
-            timestamp: new Date()
-        };
+        const embed = new EmbedBuilder()
+            .setColor(0xffaa00)
+            .setDescription('**TikTok Bridge is already connected!**')
+            .setTimestamp();
         return message.reply({ embeds: [embed] });
     }
     
-    const embed = {
-        color: 0xffaa00,
-        description: '**Attempting to reconnect TikTok Bridge...**',
-        timestamp: new Date()
-    };
+    const embed = new EmbedBuilder()
+        .setColor(0xffaa00)
+        .setDescription('**Attempting to reconnect TikTok Bridge...**')
+        .setTimestamp();
     
     const replyMessage = await message.reply({ embeds: [embed] });
     
     const success = await bridge.start();
     
     Logger.debug(`TikTok reconnectBridge: Reconnection attempt ${success ? 'successful' : 'failed'} for user ${message.author.username}`);
-    const resultEmbed = {
-        color: success ? 0x00ff00 : 0xff0000,
-        author: {
-            name: success ? 'Reconnection Successful' : 'Reconnection Failed'
-        },
-        description: success 
+    const resultEmbed = new EmbedBuilder()
+        .setColor(success ? 0x00ff00 : 0xff0000)
+        .setAuthor({ name: success ? 'Reconnection Successful' : 'Reconnection Failed' })
+        .setDescription(success 
             ? 'TikTok Bridge has been reconnected successfully!'
-            : 'Failed to reconnect TikTok Bridge. Check logs for details.',
-        timestamp: new Date()
-    };
+            : 'Failed to reconnect TikTok Bridge. Check logs for details.')
+        .setTimestamp();
     
     return replyMessage.edit({ embeds: [resultEmbed] });
 }
 
-function formatUptime(ms) {
+function formatUptime(ms: number) {
     if (!ms || ms <= 0) return 'Not connected';
     
     const seconds = Math.floor(ms / 1000);
@@ -170,9 +153,9 @@ function formatUptime(ms) {
     return `${seconds}s`;
 }
 
-function formatRelativeTime(date) {
+function formatRelativeTime(date: Date): string {
     const now = new Date();
-    const diff = now - date;
+    const diff = now.getTime() - date.getTime();
     const minutes = Math.floor(diff / 60000);
     
     if (minutes < 1) return 'Just now';
@@ -185,34 +168,32 @@ function formatRelativeTime(date) {
     return `${days}d ago`;
 }
 
-export default {
+const validSubcommands = ['stats', 'status', 'disconnect', 'reconnect'];
+
+const tiktokCommand: Command = {
     name: 'tiktok',
-    aliases: ['tt', 'bridge'],
     description: 'Show TikTok Bridge status and statistics',
-    execute: async (message, args, bot) => {
+    execute: async (message: Message, args: string[], bot: any) => {
         Logger.command(`tiktok ${args.join(' ')}`, message.author.username);
         const subcommand = args[0]?.toLowerCase();
         
         if (!bot.tiktokBridge) {
             Logger.debug(`TikTok command: TikTok Bridge not available for user ${message.author.username}`);
-            const embed = {
-                color: 0xff0000,
-                title: 'TikTok Bridge Not Available',
-                description: 'TikTok Bridge is not initialized or configured.',
-                timestamp: new Date()
-            };
+            const embed = new EmbedBuilder()
+                .setColor(0xff0000)
+                .setTitle('TikTok Bridge Not Available')
+                .setDescription('TikTok Bridge is not initialized or configured.')
+                .setTimestamp();
             return message.reply({ embeds: [embed] });
         }
         
-        // Validasi subcommand
-        const validSubcommands = ['stats', 'status', 'disconnect', 'reconnect'];
         if (!subcommand || !validSubcommands.includes(subcommand)) {
             Logger.debug(`TikTok command: Invalid or missing subcommand '${subcommand}' for user ${message.author.username}`);
-            const embed = {
-                color: 0xffaa00,
-                title: 'Invalid TikTok Command',
-                description: `**Command tidak valid!**\n\nGunakan salah satu subcommand berikut:`,
-                fields: [
+            const embed = new EmbedBuilder()
+                .setColor(0xffaa00)
+                .setTitle('Invalid TikTok Command')
+                .setDescription(`**Command tidak valid!**\n\nGunakan salah satu subcommand berikut:`)
+                .addFields(
                     {
                         name: 'Status & Statistics',
                         value: `\`${config.bot.prefix}tiktok status\` - Tampilkan status bridge\n\`${config.bot.prefix}tiktok stats\` - Tampilkan statistik detail`,
@@ -223,12 +204,9 @@ export default {
                         value: `\`${config.bot.prefix}tiktok disconnect\` - Putuskan koneksi bridge\n\`${config.bot.prefix}tiktok reconnect\` - Sambungkan ulang bridge`,
                         inline: false
                     }
-                ],
-                timestamp: new Date(),
-                footer: {
-                    text: `Contoh: ${config.bot.prefix}tiktok status`
-                }
-            };
+                )
+                .setTimestamp()
+                .setFooter({ text: `Contoh: ${config.bot.prefix}tiktok status` });
             return message.reply({ embeds: [embed] });
         }
         
@@ -251,3 +229,5 @@ export default {
         }
     }
 };
+
+export default tiktokCommand;

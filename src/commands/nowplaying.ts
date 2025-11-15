@@ -1,21 +1,30 @@
 import { useQueue } from 'discord-player';
+import { Message, EmbedBuilder } from 'discord.js';
 import { Logger } from '../utils/logging.js';
+import { Command } from '../types/command.js';
 
-export default {
+const nowplayingCommand: Command = {
     name: 'nowplaying',
-    aliases: ['np', 'current'],
     description: 'Show the currently playing track',
-    execute: async (message, args, bot) => {
+    execute: async (message: Message, args: string[], bot: any) => {
         Logger.command('nowplaying', message.author.username);
+        if (!message.guild) {
+            Logger.debug('Message not in guild', 'NowPlayingCommand');
+            const embed = new EmbedBuilder()
+                .setColor(0xff0000)
+                .setDescription('**This command can only be used in a server!**')
+                .setTimestamp();
+            return message.reply({ embeds: [embed] });
+        }
+
         const queue = useQueue(message.guild.id);
 
         if (!queue || !queue.currentTrack) {
             Logger.debug(`Nowplaying command: No active track playing in guild ${message.guild.name}`);
-            const embed = {
-                color: 0xff0000,
-                description: '**Nothing is currently playing!**',
-                timestamp: new Date()
-            };
+            const embed = new EmbedBuilder()
+                .setColor(0xff0000)
+                .setDescription('**Nothing is currently playing!**')
+                .setTimestamp();
             return message.reply({ embeds: [embed] });
         }
 
@@ -23,13 +32,11 @@ export default {
         const progress = queue.node.createProgressBar();
         
         Logger.debug(`Nowplaying command: Displaying current track "${track.title}" in guild ${message.guild.name}`);
-        const embed = {
-            color: 0x2f3136,
-            author: {
-                name: 'Now Playing'
-            },
-            description: `[**${track.title}**](${track.url || 'https://example.com'})`,
-            fields: [
+        const embed = new EmbedBuilder()
+            .setColor(0x2f3136)
+            .setAuthor({ name: 'Now Playing' })
+            .setDescription(`[**${track.title}**](${track.url || 'https://example.com'})`)
+            .addFields(
                 {
                     name: 'Channel',
                     value: track.author || 'Unknown',
@@ -60,16 +67,11 @@ export default {
                     value: queue.repeatMode ? 'Enabled' : 'Disabled',
                     inline: true
                 }
-            ],
-            // Remove thumbnail from nowplaying
-            // thumbnail: {
-            //     url: track.thumbnail || null
-            // },
-            timestamp: new Date()
-        };
+            )
+            .setTimestamp();
 
         if (progress) {
-            embed.fields.push({
+            embed.addFields({
                 name: 'Progress',
                 value: progress,
                 inline: false
@@ -79,3 +81,5 @@ export default {
         return message.reply({ embeds: [embed] });
     }
 };
+
+export default nowplayingCommand;

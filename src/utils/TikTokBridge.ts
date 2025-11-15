@@ -1,13 +1,25 @@
 import { WebcastPushConnection } from 'tiktok-live-connector';
+import { Client, Guild, VoiceChannel, Message, Collection } from 'discord.js';
 import config from '../config.js';
 import { Logger } from './logging.js';
+import { MusicBot } from '../types/bot.js';
+import { Command } from '../types/command.js';
+import { TikTokConfig, TikTokStats, TikTokChatData, TikTokMemberData, TikTokLikeData } from '../types/tiktok.js';
+import { DiscordMessage } from '../types/discord.js';
 
 /**
  * TikTok Live Chat Bridge for Discord Bot
  * Connects to TikTok live streams and forwards commands to Discord bot
  */
 class TikTokBridge {
-    constructor(bot) {
+    bot: MusicBot;
+    connection: WebcastPushConnection | null;
+    isConnected: boolean;
+    reconnectAttempts: number;
+    config: TikTokConfig;
+    stats: TikTokStats;
+
+    constructor(bot: MusicBot) {
         this.bot = bot;
         this.connection = null;
         this.isConnected = false;
@@ -16,8 +28,8 @@ class TikTokBridge {
         // Configuration
         this.config = {
             username: config.tiktok.username,
-            targetGuildId: process.env.DISCORD_GUILD_ID,
-            targetChannelId: process.env.DISCORD_VOICE_CHANNEL_ID,
+            targetGuildId: process.env.DISCORD_GUILD_ID!,
+            targetChannelId: process.env.DISCORD_VOICE_CHANNEL_ID!,
             prefix: config.bot.prefix,
             maxReconnectAttempts: config.tiktok.maxReconnectAttempts,
             reconnectDelay: config.tiktok.reconnectDelay,
@@ -58,9 +70,9 @@ class TikTokBridge {
             Logger.debug('TikTokBridge: Connection initialization successful');
             return true;
         } catch (error) {
-            Logger.error(`Connection failed: ${error.message}`);
-            Logger.debug(`TikTokBridge: Connection initialization failed - ${error.message}`);
-            await this.handleConnectionFailure(error);
+            Logger.error(`Connection failed: ${(error as Error).message}`);
+            Logger.debug(`TikTokBridge: Connection initialization failed - ${(error as Error).message}`);
+            await this.handleConnectionFailure(error as Error);
             return false;
         }
     }
@@ -68,7 +80,7 @@ class TikTokBridge {
     /**
      * Validate required configuration
      */
-    validateConfiguration() {
+    validateConfiguration(): boolean {
         Logger.debug('TikTokBridge: Validating configuration...');
         
         if (!this.config.username) {
@@ -96,11 +108,11 @@ class TikTokBridge {
     /**
      * Initialize WebcastPushConnection and set up event handlers
      */
-    async initializeConnection() {
+    async initializeConnection(): Promise<void> {
         Logger.debug(`TikTokBridge: Creating WebcastPushConnection for @${this.config.username}`);
         
         // Prepare connection options
-        const connectionOptions = {};
+        const connectionOptions: any = {};
         
         // Add API key if available to avoid rate limiting
         const signApiKey = process.env.TIKTOK_SIGN_API_KEY;
@@ -120,7 +132,8 @@ class TikTokBridge {
     /**
      * Set up all event handlers for the TikTok connection
      */
-    setupEventHandlers() {
+    setupEventHandlers(): void {
+        if (!this.connection) return;
         Logger.debug('TikTokBridge: Setting up event handlers');
         this.connection.on('connected', () => this.handleConnected());
         this.connection.on('disconnected', () => this.handleDisconnected());
@@ -134,7 +147,7 @@ class TikTokBridge {
     /**
      * Handle successful connection
      */
-    handleConnected() {
+    handleConnected(): void {
         Logger.success(`Connected to @${this.config.username}`);
         this.isConnected = true;
         this.reconnectAttempts = 0;
@@ -145,7 +158,7 @@ class TikTokBridge {
     /**
      * Handle disconnection
      */
-    handleDisconnected() {
+    handleDisconnected(): void {
         Logger.warn(`Disconnected from @${this.config.username}`);
         this.isConnected = false;
         this.stats.connectTime = null;
@@ -155,7 +168,7 @@ class TikTokBridge {
     /**
      * Handle connection errors
      */
-    handleError(error) {
+    handleError(error: Error): void {
         Logger.error(`Connection error: ${error.message}`);
         this.isConnected = false;
         Logger.debug(`TikTokBridge: Connection error occurred - ${error.message}`);
@@ -164,7 +177,7 @@ class TikTokBridge {
     /**
      * Handle chat messages from TikTok
      */
-    async handleChatMessage(data) {
+    async handleChatMessage(data: TikTokChatData): Promise<void> {
         try {
             this.stats.messagesReceived++;
             this.stats.lastActivity = new Date();
@@ -203,15 +216,15 @@ class TikTokBridge {
             Logger.debug(`TikTokBridge: Command "${commandName}" executed successfully, total processed: ${this.stats.commandsProcessed}`);
             
         } catch (error) {
-            Logger.error(`Error handling chat message: ${error.message}`);
-            Logger.debug(`TikTokBridge: Error in handleChatMessage - ${error.message}`);
+            Logger.error(`Error handling chat message: ${(error as Error).message}`);
+            Logger.debug(`TikTokBridge: Error in handleChatMessage - ${(error as Error).message}`);
         }
     }
 
     /**
      * Handle member join events (optional logging)
      */
-    handleMemberJoin(data) {
+    handleMemberJoin(data: TikTokMemberData): void {
         // Optional: Log when someone joins the TikTok live
         // log.log('info', `${data.uniqueId} joined the live`);
     }
@@ -219,7 +232,7 @@ class TikTokBridge {
     /**
      * Handle like events (optional logging)
      */
-    handleLike(data) {
+    handleLike(data: TikTokLikeData): void {
         // Optional: Log likes
         // log.log('info', `${data.uniqueId} liked the stream`);
     }
@@ -227,23 +240,23 @@ class TikTokBridge {
     /**
      * Check if message is a valid command
      */
-    isValidCommand(message) {
-        return message && typeof message === 'string' && message.startsWith(this.config.prefix);
+    isValidCommand(message: string): boolean {
+        return typeof message === 'string' && message.startsWith(this.config.prefix);
     }
 
     /**
      * Parse command from message
      */
-    parseCommand(message) {
+    parseCommand(message: string): { commandName: string; args: string[] } {
         const args = message.slice(this.config.prefix.length).trim().split(/ +/);
-        const commandName = args.shift().toLowerCase();
+        const commandName = args.shift()!.toLowerCase();
         return { commandName, args };
     }
 
     /**
      * Check if user has permission to use a command
      */
-    hasCommandPermission(username, commandName, user) {
+    hasCommandPermission(username: string, commandName: string, user: any): boolean {
         const allowedCommands = ['play', 'help', 'nowplaying', 'queue'];
         
         if (allowedCommands.includes(commandName)) {
@@ -260,7 +273,7 @@ class TikTokBridge {
     /**
      * Check if user is privileged (host or moderator from TikTok)
      */
-    isPrivilegedUser(username, user) {
+    isPrivilegedUser(username: string, user: any): boolean {
         // Host
         if (username === this.config.username) {
             Logger.debug(`TikTokBridge: User ${username} is host (privileged)`);
@@ -280,15 +293,15 @@ class TikTokBridge {
     /**
      * Get Discord command by name
      */
-    getDiscordCommand(commandName) {
+    getDiscordCommand(commandName: string): any {
         return this.bot.commands.get(commandName)
-            || this.bot.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+            || this.bot.commands.find((cmd: any) => cmd.aliases && cmd.aliases.includes(commandName));
     }
 
     /**
      * Execute Discord command with TikTok context
      */
-    async executeCommand(command, username, message, args) {
+    async executeCommand(command: any, username: string, message: string, args: string[]) {
         const fakeMessage = this.createDiscordMessage(username, message);
         Logger.debug(`TikTokBridge: Created fake Discord message for ${username}`);
         
@@ -296,15 +309,15 @@ class TikTokBridge {
             await command.execute(fakeMessage, args, this.bot);
             Logger.debug(`TikTokBridge: Command "${command.name}" executed successfully for ${username}`);
         } catch (error) {
-            Logger.error(`Error executing command '${command.name}': ${error.message}`);
-            Logger.debug(`TikTokBridge: Command execution failed for ${username} - ${error.message}`);
+            Logger.error(`Error executing command '${command.name}': ${(error as Error).message}`);
+            Logger.debug(`TikTokBridge: Command execution failed for ${username} - ${(error as Error).message}`);
         }
     }
 
     /**
      * Create a fake Discord message object for TikTok commands
      */
-    createDiscordMessage(username, message) {
+    createDiscordMessage(username: string, message: string): DiscordMessage {
         const guild = this.getTargetGuild();
         const voiceChannel = this.getTargetVoiceChannel(guild);
 
@@ -312,14 +325,15 @@ class TikTokBridge {
             content: message,
             author: this.createTikTokUser(username),
             guild: guild,
-            member: this.createTikTokMember(voiceChannel)
+            member: this.createTikTokMember(voiceChannel),
+            reply: this.createReplyHandler(username)
         };
     }
 
     /**
      * Get target Discord guild
      */
-    getTargetGuild() {
+    getTargetGuild(): Guild | undefined {
         const guild = this.bot.client.guilds.cache.get(this.config.targetGuildId);
         if (!guild) {
             Logger.debug(`TikTokBridge: Target guild ${this.config.targetGuildId} not found in cache`);
@@ -333,26 +347,27 @@ class TikTokBridge {
     /**
      * Get target voice channel
      */
-    getTargetVoiceChannel(guild) {
+    getTargetVoiceChannel(guild: Guild | undefined): VoiceChannel | null {
         if (!guild) {
             Logger.debug('TikTokBridge: Cannot get voice channel - guild is null');
             return null;
         }
         
         const channel = guild.channels.cache.get(this.config.targetChannelId);
-        if (!channel) {
+        if (!channel || channel.type !== 2) { // 2 is GUILD_VOICE
             Logger.debug(`TikTokBridge: Target voice channel ${this.config.targetChannelId} not found in guild "${guild.name}"`);
             Logger.warn(`Target voice channel ${this.config.targetChannelId} not found`);
+            return null;
         } else {
             Logger.debug(`TikTokBridge: Found target voice channel "${channel.name}" (${this.config.targetChannelId})`);
+            return channel as VoiceChannel;
         }
-        return channel;
     }
 
     /**
      * Create TikTok user object
      */
-    createTikTokUser(username) {
+    createTikTokUser(username: string): DiscordMessage['author'] {
         return {
             id: `tiktok_${username}`,
             username: username,
@@ -365,7 +380,7 @@ class TikTokBridge {
     /**
      * Create TikTok member object
      */
-    createTikTokMember(voiceChannel) {
+    createTikTokMember(voiceChannel: VoiceChannel | null): DiscordMessage['member'] {
         return {
             voice: {
                 channel: voiceChannel,
@@ -383,8 +398,8 @@ class TikTokBridge {
     /**
      * Create reply handler for TikTok responses
      */
-    createReplyHandler(username) {
-        return async (content) => {
+    createReplyHandler(username: string): (content: any) => Promise<Message> {
+        return async (content: any) => {
             try {
                 if (typeof content === 'string') {
                     Logger.reply(`To ${username}: ${content}`);
@@ -396,8 +411,10 @@ class TikTokBridge {
                 } else {
                     Logger.reply(`To ${username}: [Complex response]`);
                 }
+                return {} as Message;
             } catch (error) {
-                Logger.error(`Error in reply handler: ${error.message}`);
+                Logger.error(`Error in reply handler: ${error instanceof Error ? error.message : String(error)}`);
+                return {} as Message;
             }
         };
     }
@@ -405,7 +422,7 @@ class TikTokBridge {
     /**
      * Handle connection failures and implement reconnection logic
      */
-    async handleConnectionFailure(error) {
+    async handleConnectionFailure(error: Error) {
         Logger.debug(`TikTokBridge: Handling connection failure - current attempts: ${this.reconnectAttempts}/${this.config.maxReconnectAttempts}`);
         
         if (this.reconnectAttempts < this.config.maxReconnectAttempts) {
@@ -425,19 +442,19 @@ class TikTokBridge {
     /**
      * Get bridge statistics
      */
-    getStats() {
+    getStats(): object {
         return {
             ...this.stats,
             isConnected: this.isConnected,
             username: this.config.username,
-            uptime: this.stats.connectTime ? Date.now() - this.stats.connectTime : 0
+            uptime: this.stats.connectTime ? Date.now() - this.stats.connectTime.getTime() : 0
         };
     }
 
     /**
      * Disconnect from TikTok
      */
-    disconnect() {
+    disconnect(): void {
         if (this.connection) {
             Logger.debug('TikTokBridge: Disconnecting from TikTok live stream');
             this.connection.disconnect();

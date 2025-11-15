@@ -1,21 +1,21 @@
-import { BaseExtractor } from 'discord-player';
+import { BaseExtractor, ExtractorSearchContext, ExtractorInfo } from 'discord-player';
 import { Soundcloud } from 'soundcloud.ts';
 import { Logger } from '../utils/logging.js';
 
 class SoundCloudExtractor extends BaseExtractor {
     static identifier = 'soundcloud';
+    soundcloud: Soundcloud | null = null;
 
-    async activate() {
+    async activate(): Promise<void> {
         Logger.debug('SoundCloudExtractor: Activating extractor...');
         this.soundcloud = new Soundcloud(
             process.env.SOUNDCLOUD_CLIENT_ID,
             process.env.SOUNDCLOUD_OAUTH_TOKEN
         );
         Logger.debug('SoundCloudExtractor: SoundCloud client initialized');
-        return true;
     }
 
-    async validate(query) {
+    async validate(query: string): Promise<boolean> {
         Logger.debug(`SoundCloudExtractor: Validating query: "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}"`);
         
         if (typeof query !== 'string' || query.length === 0) {
@@ -32,7 +32,7 @@ class SoundCloudExtractor extends BaseExtractor {
         return true;
     }
 
-    async handle(query) {
+    async handle(query: string, context: ExtractorSearchContext): Promise<ExtractorInfo> {
         Logger.debug(`SoundCloudExtractor: Handling query: "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}"`);
         
         if (!this.soundcloud) {
@@ -68,7 +68,7 @@ class SoundCloudExtractor extends BaseExtractor {
                     limit: 10 
                 });
                 
-                tracks = searchResults.collection || searchResults || [];
+                tracks = Array.isArray(searchResults) ? searchResults : (searchResults.collection || []);
                 Logger.debug(`SoundCloudExtractor: Search returned ${tracks.length} results`);
             }
 
@@ -86,24 +86,29 @@ class SoundCloudExtractor extends BaseExtractor {
             };
 
             Logger.debug(`SoundCloudExtractor: Returning ${result.tracks.length} tracks`);
-            return result;
+            return result as unknown as ExtractorInfo;
         } catch (error) {
-            Logger.error(`SoundCloudExtractor error: ${error.message}`);
-            Logger.debug(`SoundCloudExtractor: Handle method failed - ${error.message}`);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            Logger.error(`SoundCloudExtractor error: ${errorMsg}`);
+            Logger.debug(`SoundCloudExtractor: Handle method failed - ${errorMsg}`);
             return { playlist: null, tracks: [] };
         }
     }
 
-    async stream(info) {
+    async stream(info: any): Promise<string | any> {
         Logger.debug(`SoundCloudExtractor: Streaming track: "${info.title}"`);
         
         try {
             const soundcloudTrack = info.raw || info.engine;
             
+            if (!this.soundcloud) {
+                throw new Error('SoundCloud client not initialized');
+            }
+            
             // Method 1: Try streamTrack utility
             Logger.debug('SoundCloudExtractor: Attempting streamTrack utility...');
             try {
-                const stream = await this.soundcloud.util.streamTrack(soundcloudTrack.permalink_url);
+                const stream = await this.soundcloud.util!.streamTrack(soundcloudTrack.permalink_url);
                 Logger.debug('SoundCloudExtractor: StreamTrack utility successful');
                 return stream;
             } catch (streamError) {
@@ -120,7 +125,7 @@ class SoundCloudExtractor extends BaseExtractor {
             // Method 3: Try to get track info again and extract stream
             Logger.debug('SoundCloudExtractor: Attempting to refetch track info...');
             try {
-                const freshTrack = await this.soundcloud.tracks.get(soundcloudTrack.id);
+                const freshTrack = await this.soundcloud.tracks!.get(soundcloudTrack.id);
                 
                 if (freshTrack.media?.transcodings?.length > 0) {
                     const transcoding = freshTrack.media.transcodings.find(t => 
@@ -141,13 +146,14 @@ class SoundCloudExtractor extends BaseExtractor {
             throw new Error(`Unable to extract stream for track: ${soundcloudTrack.title}`);
             
         } catch (error) {
-            Logger.error(`SoundCloudExtractor stream error: ${error.message}`);
-            Logger.debug(`SoundCloudExtractor: Stream method failed - ${error.message}`);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            Logger.error(`SoundCloudExtractor stream error: ${errorMsg}`);
+            Logger.debug(`SoundCloudExtractor: Stream method failed - ${errorMsg}`);
             throw error;
         }
     }
 
-    convertToTrackData(soundcloudTrack) {
+    convertToTrackData(soundcloudTrack: any): object {
         return {
             title: soundcloudTrack.title || 'Unknown Title',
             description: soundcloudTrack.description || '',
@@ -171,19 +177,19 @@ class SoundCloudExtractor extends BaseExtractor {
         };
     }
 
-    isSoundCloudURL(url) {
+    isSoundCloudURL(url: string): boolean {
         const soundcloudUrlRegex = /^https?:\/\/(www\.)?(soundcloud\.com|snd\.sc)\/.+/;
         return soundcloudUrlRegex.test(url);
     }
 
-    extractPath(url) {
+    extractPath(url: string): string {
         // Extract the path from SoundCloud URL
         // e.g., "https://soundcloud.com/user/track" -> "user/track"
         const match = url.match(/soundcloud\.com\/(.+)/);
         return match ? match[1] : url;
     }
 
-    formatDuration(ms) {
+    formatDuration(ms: number): string {
         if (!ms) return '0:00';
         const seconds = Math.floor(ms / 1000);
         const minutes = Math.floor(seconds / 60);

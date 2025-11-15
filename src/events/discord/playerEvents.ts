@@ -1,11 +1,13 @@
 import { Logger } from '../../utils/logging.js';
+import { Client } from 'discord.js';
+import { MusicBot } from '../../types/bot.js';
 
 export default {
-    registerPlayerEvents(client, bot) {
+    registerPlayerEvents(client: Client, bot: MusicBot) {
         Logger.debug('Registering player events', 'PlayerEvents');
         
         // Track start event - when a song starts playing
-        bot.player.events.on('playerStart', (queue, track) => {
+        bot.player.events.on('playerStart', (queue: any, track: any) => {
             Logger.debug(`Player started: ${track.title} in guild ${queue.guild.name}`, 'PlayerEvents');
             
             if (queue.metadata && !queue.metadata.author.id.startsWith('tiktok_')) {
@@ -47,7 +49,7 @@ export default {
             }
         });
 
-        bot.player.events.on('audioTrackAdd', (queue, track) => {
+        bot.player.events.on('audioTrackAdd', (queue: any, track: any) => {
             Logger.debug(`Track added to queue: ${track.title} (${track.source})`, 'PlayerEvents');
             
             if (bot.overlayServer) {
@@ -57,16 +59,16 @@ export default {
         });
 
         // Additional logging events
-        bot.player.events.on('audioTrackAdd', (queue, track) => {
+        bot.player.events.on('audioTrackAdd', (queue: any, track: any) => {
             Logger.info(`Track added: ${track.title} from: ${track.source || 'unknown'}`);
         });
 
-        bot.player.events.on('emptyChannel', (queue) => {
+        bot.player.events.on('emptyChannel', (queue: any) => {
             Logger.debug(`Voice channel empty in guild ${queue.guild.name}`, 'PlayerEvents');
             Logger.info('Voice channel is empty');
         });
 
-        bot.player.events.on('queueFinish', (queue) => {
+        bot.player.events.on('emptyQueue', (queue: any) => {
             Logger.debug(`Queue finished in guild ${queue.guild.name}`, 'PlayerEvents');
             
             if (queue.metadata) {

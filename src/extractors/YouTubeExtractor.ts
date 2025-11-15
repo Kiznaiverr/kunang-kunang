@@ -1,30 +1,29 @@
-import { BaseExtractor } from 'discord-player';
+import { BaseExtractor, ExtractorSearchContext, ExtractorInfo } from 'discord-player';
 import { youtube, yts } from 'btch-downloader';
 import { Logger } from '../utils/logging.js';
 
 class YouTubeExtractor extends BaseExtractor {
     static identifier = 'youtube';
 
-    async activate() {
+    async activate(): Promise<void> {
         Logger.debug('YouTubeExtractor: Activating extractor...');
-        return true;
     }
 
-    async validate(query) {
+    async validate(query: string): Promise<boolean> {
         const isValid = this.isYouTubeURL(query);
         Logger.debug(`YouTubeExtractor: Validating query "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}" - ${isValid ? 'valid YouTube URL' : 'not a YouTube URL'}`);
         return isValid;
     }
 
-    async handle(query) {
+    async handle(query: string, context: ExtractorSearchContext): Promise<ExtractorInfo> {
         Logger.debug(`YouTubeExtractor: Handling query: "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}"`);
         
         try {
-            let tracks = [];
+            let tracks: any[] = [];
 
             if (this.isYouTubeURL(query)) {
                 Logger.debug('YouTubeExtractor: Processing YouTube URL...');
-                const data = await youtube(query);
+                const data = await youtube(query) as any;
                 if (data && data.result) {
                     tracks = [this.convertToTrackData(data.result)];
                     Logger.debug('YouTubeExtractor: Retrieved single video from URL');
@@ -36,9 +35,9 @@ class YouTubeExtractor extends BaseExtractor {
                 }
             } else {
                 Logger.debug('YouTubeExtractor: Performing search...');
-                const searchData = await yts(query);
+                const searchData = await yts(query) as any;
                 if (searchData && searchData.result && searchData.result.videos) {
-                    tracks = searchData.result.videos.slice(0, 10).map(video => this.convertToTrackData(video));
+                    tracks = searchData.result.videos.slice(0, 10).map((video: any) => this.convertToTrackData(video));
                     Logger.debug(`YouTubeExtractor: Search returned ${tracks.length} videos`);
                 } else {
                     Logger.debug('YouTubeExtractor: No search results found');
@@ -49,15 +48,16 @@ class YouTubeExtractor extends BaseExtractor {
             return {
                 playlist: null,
                 tracks: tracks
-            };
+            } as unknown as ExtractorInfo;
         } catch (error) {
-            Logger.error(`YouTubeExtractor error: ${error.message}`);
-            Logger.debug(`YouTubeExtractor: Handle method failed - ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Logger.error(`YouTubeExtractor error: ${errorMessage}`);
+            Logger.debug(`YouTubeExtractor: Handle method failed - ${errorMessage}`);
             return { playlist: null, tracks: [] };
         }
     }
 
-    async stream(info) {
+    async stream(info: any): Promise<string> {
         Logger.debug(`YouTubeExtractor: Streaming track: "${info.title}"`);
         
         try {
@@ -89,13 +89,14 @@ class YouTubeExtractor extends BaseExtractor {
             Logger.debug(`YouTubeExtractor: Unable to extract stream for: ${info.title}`);
             throw new Error(`Unable to extract stream for: ${info.title}`);
         } catch (error) {
-            Logger.error(`YouTubeExtractor stream error: ${error.message}`);
-            Logger.debug(`YouTubeExtractor: Stream method failed - ${error.message}`);
+            const errorMessage = error instanceof Error ? error.message : String(error);
+            Logger.error(`YouTubeExtractor stream error: ${errorMessage}`);
+            Logger.debug(`YouTubeExtractor: Stream method failed - ${errorMessage}`);
             throw error;
         }
     }
 
-    convertToTrackData(videoData) {
+    convertToTrackData(videoData: any): any {
         const isSearchResult = videoData.type === 'video';
         
         return {
@@ -119,12 +120,12 @@ class YouTubeExtractor extends BaseExtractor {
         };
     }
 
-    isYouTubeURL(url) {
+    isYouTubeURL(url: string): boolean {
         const youtubeUrlRegex = /^https?:\/\/(www\.)?(youtube\.com\/watch\?v=[^&\n?#]+|youtu\.be\/[^&\n?#]+|youtube\.com\/embed\/[^&\n?#]+|youtube\.com\/v\/[^&\n?#]+)/;
         return youtubeUrlRegex.test(url);
     }
 
-    formatDuration(duration) {
+    formatDuration(duration: any): string {
         if (!duration) return '0:00';
 
         if (typeof duration === 'object' && duration.timestamp) {
@@ -152,7 +153,7 @@ class YouTubeExtractor extends BaseExtractor {
         return '0:00';
     }
 
-    parseViews(views) {
+    parseViews(views: any): number {
         if (!views) return 0;
 
         if (typeof views === 'number') return views;

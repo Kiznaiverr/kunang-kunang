@@ -1,10 +1,12 @@
 import { Logger } from '../../utils/logging.js';
+import { Client } from 'discord.js';
+import { MusicBot } from '../../types/bot.js';
 
 export default {
-    registerErrorEvents(client, bot) {
+    registerErrorEvents(client: Client, bot: MusicBot) {
         Logger.debug('Registering error events', 'ErrorEvents');
         
-        bot.player.events.on('error', (queue, error) => {
+        bot.player.events.on('error', (queue: any, error: any) => {
             Logger.debug(`General player error in guild ${queue?.guild?.name}: ${error.message}`, 'ErrorEvents');
             Logger.error(`General player error: ${error.message}`);
             if (queue.metadata) {
@@ -12,7 +14,7 @@ export default {
             }
         });
 
-        bot.player.events.on('playerError', (queue, error) => {
+        bot.player.events.on('playerError', (queue: any, error: any) => {
             Logger.debug(`Player error in guild ${queue?.guild?.name}: ${error.message}`, 'ErrorEvents');
             Logger.error(`Player error: ${error.message}`);
             if (queue.metadata) {
@@ -36,7 +38,7 @@ export default {
         // });
 
         // Disconnect event logging
-        bot.player.events.on('disconnect', (queue) => {
+        bot.player.events.on('disconnect', (queue: any) => {
             Logger.debug(`Bot disconnected from voice channel in guild ${queue?.guild?.name}`, 'ErrorEvents');
             Logger.info('Bot disconnected from voice channel');
         });

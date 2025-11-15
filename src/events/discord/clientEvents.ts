@@ -1,9 +1,11 @@
 import { Logger } from '../../utils/logging.js';
+import { Client, Message } from 'discord.js';
+import { MusicBot } from '../../types/bot.js';
 
 export default {
-    registerClientEvents(client, bot) {
+    registerClientEvents(client: Client, bot: MusicBot) {
         // Message command handling
-        client.on('messageCreate', (message) => {
+        client.on('messageCreate', (message: Message) => {
             // Skip logging for empty messages or messages from bots
             if (!message.content || message.content.trim() === '' || message.author.bot) {
                 return;
@@ -17,7 +19,7 @@ export default {
             }
 
             const args = message.content.slice(bot.prefix.length).trim().split(/ +/);
-            const commandName = args.shift().toLowerCase();
+            const commandName = args.shift()!.toLowerCase();
 
             Logger.debug(`Command parsed: ${commandName}, args: [${args.join(', ')}]`, 'MessageHandler');
 
@@ -31,8 +33,8 @@ export default {
             try {
                 command.execute(message, args, bot);
             } catch (error) {
-                Logger.error(`Error executing command ${commandName}: ${error.message}`);
-                console.error(error);  // For easier debugging, keep this line
+                const errorMessage = error instanceof Error ? error.message : String(error);
+                Logger.error(`Error executing command ${commandName}: ${errorMessage}`);
                 message.reply('There was an error executing that command!');
             }
         });

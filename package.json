@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "description": "Kunang-Kunang - Discord music bot with TikTok live integration, built with discord.js v14 and discord-player v7.1.x",
   "type": "module",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "build": "tsc",
+    "start": "npm run build && node dist/index.js",
+    "dev": "nodemon dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -45,7 +46,10 @@
     "tiktok-live-connector": "^2.1.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.2"
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.10.0",
+    "nodemon": "^3.0.2",
+    "typescript": "^5.3.0"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -1,16 +1,18 @@
 import fs from 'fs';
 import path from 'path';
+import { Message, EmbedBuilder } from 'discord.js';
 import { Logger } from '../utils/logging.js';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { Command } from '../types/command.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-export default {
+const helpCommand: Command = {
     name: 'help',
     aliases: ['h', 'commands'],
     description: 'Show all available commands',
-    execute: async (message, args, bot) => {
+    execute: async (message: Message, args: string[], bot: any) => {
         Logger.command('help', message.author.username);
         Logger.debug(`Help command initiated by ${message.author.username}`, 'HelpCommand');
         
@@ -33,7 +35,8 @@ export default {
                         });
                     }
                 } catch (error) {
-                    Logger.warn(`Could not load command from ${file}: ${error.message}`);
+                    const errorMsg = error instanceof Error ? error.message : String(error);
+                    Logger.warn(`Could not load command from ${file}: ${errorMsg}`);
                 }
             }
             
@@ -56,7 +59,7 @@ export default {
                     const commandList = categoryCommandsInfo.map(cmd => {
                         let commandText = `\`${bot.prefix}${cmd.name}\` - ${cmd.description}`;
                         if (cmd.aliases && cmd.aliases.length > 0) {
-                            commandText += ` (Aliases: ${cmd.aliases.map(alias => `\`${alias}\``).join(', ')})`;
+                            commandText += ` (Aliases: ${cmd.aliases.map((alias: string) => `\`${alias}\``).join(', ')})`;
                         }
                         return commandText;
                     }).join('\n');
@@ -76,7 +79,7 @@ export default {
                 const commandList = uncategorizedCommands.map(cmd => {
                     let commandText = `\`${bot.prefix}${cmd.name}\` - ${cmd.description}`;
                     if (cmd.aliases && cmd.aliases.length > 0) {
-                        commandText += ` (Aliases: ${cmd.aliases.map(alias => `\`${alias}\``).join(', ')})`;
+                        commandText += ` (Aliases: ${cmd.aliases.map((alias: string) => `\`${alias}\``).join(', ')})`;
                     }
                     return commandText;
                 }).join('\n');
@@ -88,38 +91,33 @@ export default {
                 });
             }
             
-            const embed = {
-                color: 0x0099ff,
-                title: '🎵 Kunang-Kunang Music Bot Commands',
-                description: `Here are all the available commands for the music bot:\n\n**Total Commands:** ${commands.length}`,
-                fields: fields,
-                thumbnail: {
-                    url: 'https://via.placeholder.com/150x150.png?text=🎵'
-                },
-                timestamp: new Date(),
-                footer: {
-                    text: `Prefix: ${bot.prefix} | Use ${bot.prefix}help for command list`
-                }
-            };
+            const embed = new EmbedBuilder()
+                .setColor(0x0099ff)
+                .setTitle('🎵 Kunang-Kunang Music Bot Commands')
+                .setDescription(`Here are all the available commands for the music bot:\n\n**Total Commands:** ${commands.length}`)
+                .addFields(fields)
+                .setThumbnail('https://via.placeholder.com/150x150.png?text=🎵')
+                .setTimestamp()
+                .setFooter({ text: `Prefix: ${bot.prefix} | Use ${bot.prefix}help for command list` });
 
             return message.reply({ embeds: [embed] });
             
         } catch (error) {
-            Logger.debug(`Help command failed: ${error.message}`, 'HelpCommand');
-            Logger.error(`Error in help command: ${error.message}`);
+            const errorMsg = error instanceof Error ? error.message : String(error);
+            Logger.debug(`Help command failed: ${errorMsg}`, 'HelpCommand');
+            Logger.error(`Error in help command: ${errorMsg}`);
             console.error(error);
             
-            const embed = {
-                color: 0xff0000,
-                title: 'Help Command Error',
-                description: 'There was an error loading the dynamic help. Please check contact the developer',
-                timestamp: new Date(),
-                footer: {
-                    text: `Prefix: ${bot.prefix} | Kunang-Kunang Music Bot`
-                }
-            };
+            const embed = new EmbedBuilder()
+                .setColor(0xff0000)
+                .setTitle('Help Command Error')
+                .setDescription('There was an error loading the dynamic help. Please check contact the developer')
+                .setTimestamp()
+                .setFooter({ text: `Prefix: ${bot.prefix} | Kunang-Kunang Music Bot` });
             
             return message.reply({ embeds: [embed] });
         }
     }
 };
+
+export default helpCommand;
