@@ -4,11 +4,13 @@
 
 ### Discord Music Bot with TikTok Live Integration
 
-*A Discord music bot built with discord.js v14 and discord-player v7.1.x, featuring TikTok live chat integration for cross-platform music control, real-time web overlay for streaming, and advanced logging system.*
+*A Discord music bot built with TypeScript, discord.js v14 and discord-player v7.1.x, featuring TikTok live chat integration for cross-platform music control, real-time web overlay for streaming, and advanced logging system.*
 
 [![Node.js](https://img.shields.io/badge/Node.js-18+-green.svg)](https://nodejs.org)
 [![Discord.js](https://img.shields.io/badge/Discord.js-v14-blue.svg)](https://discord.js.org)
 [![Discord Player](https://img.shields.io/badge/Discord%20Player-v7.1.x-purple.svg)](https://discord-player.js.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3+-blue.svg)](https://www.typescriptlang.org)
+[![TikTok Live Connector](https://img.shields.io/badge/TikTok%20Live%20Connector-2.1.0-orange.svg)](https://github.com/zerodytrash/TikTok-Live-Connector)
 
 </div>
 
@@ -82,8 +84,14 @@ cd kunang-kunang
 # Install dependencies
 npm install
 
+# Build the project (TypeScript to JavaScript)
+npm run build
+
 # Start the bot
 npm start
+
+# For development (auto-restart on changes)
+npm run dev
 ```
 
 ### Environment Setup
@@ -337,10 +345,10 @@ You can customize the overlay by creating your own design using the API endpoint
 ## Configuration
 
 <details>
-<summary><strong>Bot Settings (src/config.js)</strong></summary>
+<summary><strong>Bot Settings (src/config.ts)</strong></summary>
 
-```javascript
-module.exports = {
+```typescript
+export default {
     // Bot behavior
     bot: {
         prefix: '!',                    // Command prefix
@@ -384,7 +392,7 @@ module.exports = {
         maxQueueDisplay: 3,             // Number of queue items to display
         preset: 2                       // Visual preset: 1, 2, 3, or 4
     }
-}
+};
 ```
 
 </details>
@@ -394,35 +402,37 @@ module.exports = {
 ```
 src/
 ├── commands/
-│   ├── play.js
-│   ├── queue.js
-│   ├── nowplaying.js
-│   ├── skip.js
-│   ├── pause.js
-│   ├── resume.js
-│   ├── stop.js
-│   ├── volume.js
-│   ├── shuffle.js
-│   ├── leave.js
-│   └── tiktok-stats.js
+│   ├── play.ts
+│   ├── queue.ts
+│   ├── nowplaying.ts
+│   ├── skip.ts
+│   ├── pause.ts
+│   ├── resume.ts
+│   ├── stop.ts
+│   ├── volume.ts
+│   ├── shuffle.ts
+│   ├── leave.ts
+│   ├── help.ts
+│   └── tiktok-stats.ts
 ├── events/
 │   ├── discord/
-│   │   ├── index.js
-│   │   ├── clientEvents.js
-│   │   ├── playerEvents.js
-│   │   └── errorEvents.js
-│   └── discordEvents.js
+│   │   ├── index.ts
+│   │   ├── clientEvents.ts
+│   │   ├── playerEvents.ts
+│   │   └── errorEvents.ts
+│   └── discordEvents.ts
 ├── extractors/
-│   ├── index.js
-│   ├── SoundCloudExtractor.js
-│   ├── YouTubeExtractor.js
-│   └── SpotifyBridgeExtractor.js
+│   ├── index.ts
+│   ├── SoundCloudExtractor.ts
+│   ├── YouTubeExtractor.ts
+│   └── SpotifyBridgeExtractor.ts
 ├── utils/
-│   ├── logging.js
-│   ├── helpers.js
-│   └── TikTokBridge.js
+│   ├── logging.ts
+│   ├── helpers.ts
+│   ├── copy-overlay.ts
+│   └── TikTokBridge.ts
 ├── web/
-│   ├── server.js
+│   ├── server.ts
 │   └── overlay/
 │       ├── index.html
 │       ├── css/
@@ -432,8 +442,13 @@ src/
 │       │   └── preset4.css
 │       └── js/
 │           └── overlay.js
-├── config.js
-└── index.js
+├── types/
+│   ├── bot.ts
+│   ├── command.ts
+│   ├── discord.ts
+│   └── tiktok.ts
+├── config.ts
+└── index.ts
 ```
 
 ## Development
@@ -443,43 +458,48 @@ src/
 1. Create command file in `src/commands/`
 2. Follow existing command structure:
 
-```javascript
-module.exports = {
+```typescript
+import { Message } from 'discord.js';
+import { Command } from '../types/command.js';
+
+const commandName: Command = {
     name: 'commandname',
     aliases: ['alias1', 'alias2'],
     description: 'Command description',
-    execute: async (message, args, bot) => {
+    execute: async (message: Message, args: string[], bot: any): Promise<any> => {
         // Command logic here
     }
 };
+
+export default commandName;
 ```
 
 ### Custom Music Sources
 
 1. Create extractor in `src/extractors/`
-2. Add export to `src/extractors/index.js`:
+2. Add export to `src/extractors/index.ts`:
 
-```javascript
-const { YourExtractor } = require('./YourExtractor');
+```typescript
+import { YourExtractor } from './YourExtractor.js';
 
-module.exports = {
+export {
     // ... existing exports
     YourExtractor
 };
 ```
 
-3. Register in `src/index.js`:
+3. Register in `src/index.ts`:
 
-```javascript
-const { YourExtractor } = require('./extractors');
+```typescript
+import { YourExtractor } from './extractors/index.js';
 await this.player.extractors.register(YourExtractor, {});
 ```
 
 ### Event Handling
 
-Add event handlers in `src/events/discordEvents.js`:
+Add event handlers in `src/events/discordEvents.ts`:
 
-```javascript
+```typescript
 bot.player.events.on('eventName', (queue, data) => {
     // Handle event
 });
