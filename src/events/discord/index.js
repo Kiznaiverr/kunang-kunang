@@ -1,9 +1,9 @@
-const clientEvents = require('./clientEvents');
-const playerEvents = require('./playerEvents');
-const errorEvents = require('./errorEvents');
-const { Logger } = require('../../utils/logging');
+import clientEvents from './clientEvents.js';
+import playerEvents from './playerEvents.js';
+import errorEvents from './errorEvents.js';
+import { Logger } from '../../utils/logging.js';
 
-module.exports = {
+export default {
     registerEvents(client, bot) {
         Logger.debug('Initializing Discord events registration', 'DiscordEvents');
         

@@ -2,6 +2,7 @@
   "name": "kunang-kunang",
   "version": "1.0.0",
   "description": "Kunang-Kunang - Discord music bot with TikTok live integration, built with discord.js v14 and discord-player v7.1.x",
+  "type": "module",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",

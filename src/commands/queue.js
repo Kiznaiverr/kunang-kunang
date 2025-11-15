@@ -1,5 +1,5 @@
-const { useQueue } = require('discord-player');
-const { Logger } = require('../utils/logging');
+import { useQueue } from 'discord-player';
+import { Logger } from '../utils/logging.js';
 
 function calculateTotalDuration(currentTrack, tracks) {
     try {
@@ -35,7 +35,7 @@ function calculateTotalDuration(currentTrack, tracks) {
     }
 }
 
-module.exports = {
+export default {
     name: 'queue',
     description: 'Show the current queue',
     execute: async (message, args, bot) => {

@@ -1,8 +1,12 @@
-const express = require("express");
-const path = require("path");
-const fs = require("fs");
-const config = require("../config");
-const { Logger } = require("../utils/logging")
+import express from "express";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+import config from "../config.js";
+import { Logger } from "../utils/logging.js";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 class OverlayServer {
   constructor(bot) {
@@ -203,4 +207,4 @@ class OverlayServer {
   }
 }
 
-module.exports = OverlayServer;
+export default OverlayServer;

@@ -1,15 +1,21 @@
-const { Client, GatewayIntentBits, Collection } = require('discord.js');
-const { Player } = require('discord-player');
-const { SoundCloudExtractor, YouTubeExtractor, SpotifyBridgeExtractor } = require('./extractors');
-const OverlayServer = require('./web/server');
-const TikTokBridge = require('./utils/TikTokBridge');
-const config = require('./config');
-const chalk = require('chalk');
-const fs = require('fs');
-const path = require('path');
-const { Logger } = require('./utils/logging');
-const { sleep } = require('./utils/helpers');
-require('dotenv').config();
+import { Client, GatewayIntentBits, Collection } from 'discord.js';
+import { Player } from 'discord-player';
+import { SoundCloudExtractor, YouTubeExtractor, SpotifyBridgeExtractor } from './extractors/index.js';
+import OverlayServer from './web/server.js';
+import TikTokBridge from './utils/TikTokBridge.js';
+import config from './config.js';
+import chalk from 'chalk';
+import fs from 'fs';
+import path from 'path';
+import { Logger } from './utils/logging.js';
+import { sleep } from './utils/helpers.js';
+import { fileURLToPath, pathToFileURL } from 'url';
+import { dirname } from 'path';
+import dotenv from 'dotenv';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+dotenv.config();
 
 class MusicBot {
     constructor() {
@@ -63,14 +69,14 @@ class MusicBot {
         await sleep(1000);
 
         Logger.debug('MusicBot: Loading commands...');
-        this.loadCommands();
+        await this.loadCommands();
         await sleep(1000);
 
         Logger.debug('MusicBot: Starting overlay server...');
         this.overlayServer = new OverlayServer(this);
 
         Logger.debug('MusicBot: Loading events...');
-        this.loadEvents();
+        await this.loadEvents();
         await sleep(1000);
 
         Logger.debug('MusicBot: Logging into Discord...');
@@ -89,7 +95,7 @@ class MusicBot {
         }
         
         Logger.debug('MusicBot: Initializing TikTok bridge...');
-        this.initTikTokBridge();
+        await this.initTikTokBridge();
         
         Logger.debug('MusicBot: Starting overlay server...');
         this.overlayServer.start();
@@ -98,7 +104,7 @@ class MusicBot {
         Logger.debug('MusicBot: Initialization complete');
     }
 
-    loadCommands() {
+    async loadCommands() {
         const commandsPath = path.join(__dirname, 'commands');
         const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -106,7 +112,8 @@ class MusicBot {
         
         for (const file of commandFiles) {
             const filePath = path.join(commandsPath, file);
-            const command = require(filePath);
+            const commandModule = await import(pathToFileURL(filePath).href);
+            const command = commandModule.default;
             this.commands.set(command.name, command);
             Logger.debug(`MusicBot: Loaded command "${command.name}" from ${file}`);
         }
@@ -115,9 +122,10 @@ class MusicBot {
         Logger.debug(`MusicBot: Command loading complete - ${this.commands.size} commands registered`);
     }
 
-    loadEvents() {
+    async loadEvents() {
         Logger.debug('MusicBot: Registering Discord events...');
-        const discordEvents = require('./events/discordEvents');
+        const discordEventsModule = await import('./events/discordEvents.js');
+        const discordEvents = discordEventsModule.default;
         discordEvents.registerEvents(this.client, this);
         
         Logger.success('Discord events registered');

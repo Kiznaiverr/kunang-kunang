@@ -1,6 +1,6 @@
-const { BaseExtractor } = require('discord-player');
-const { youtube, yts } = require('btch-downloader');
-const { Logger } = require('../utils/logging');
+import { BaseExtractor } from 'discord-player';
+import { youtube, yts } from 'btch-downloader';
+import { Logger } from '../utils/logging.js';
 
 class YouTubeExtractor extends BaseExtractor {
     static identifier = 'youtube';
@@ -167,4 +167,4 @@ class YouTubeExtractor extends BaseExtractor {
     }
 }
 
-module.exports = { YouTubeExtractor };
+export { YouTubeExtractor };

@@ -1,7 +1,7 @@
-const { useQueue } = require('discord-player');
-const { Logger } = require('../utils/logging');
+import { useQueue } from 'discord-player';
+import { Logger } from '../utils/logging.js';
 
-module.exports = {
+export default {
     name: 'leave',
     description: 'Leave the voice channel',
     execute: async (message, args, bot) => {

@@ -1,6 +1,6 @@
-const { BaseExtractor } = require('discord-player');
-const Soundcloud = require('soundcloud.ts').default;
-const { Logger } = require('../utils/logging');
+import { BaseExtractor } from 'discord-player';
+import { Soundcloud } from 'soundcloud.ts';
+import { Logger } from '../utils/logging.js';
 
 class SoundCloudExtractor extends BaseExtractor {
     static identifier = 'soundcloud';
@@ -192,4 +192,4 @@ class SoundCloudExtractor extends BaseExtractor {
     }
 }
 
-module.exports = { SoundCloudExtractor };
+export { SoundCloudExtractor };

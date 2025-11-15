@@ -1,4 +1,4 @@
-module.exports = {
+export default {
     bot: {
         prefix: '!',
         activity: {
@@ -27,7 +27,7 @@ module.exports = {
         username: '', 
         maxReconnectAttempts: 3,
         reconnectDelay: 5000, 
-        enabled: true 
+        enabled: false
     },
 
     overlay: {

@@ -1,8 +1,8 @@
-const { SoundCloudExtractor } = require('./SoundCloudExtractor');
-const { YouTubeExtractor } = require('./YouTubeExtractor');
-const { SpotifyBridgeExtractor } = require('./SpotifyBridgeExtractor');
+import { SoundCloudExtractor } from './SoundCloudExtractor.js';
+import { YouTubeExtractor } from './YouTubeExtractor.js';
+import { SpotifyBridgeExtractor } from './SpotifyBridgeExtractor.js';
 
-module.exports = {
+export {
     SoundCloudExtractor,
     YouTubeExtractor,
     SpotifyBridgeExtractor

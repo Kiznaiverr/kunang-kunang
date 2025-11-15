@@ -1,6 +1,6 @@
-const { WebcastPushConnection } = require('tiktok-live-connector');
-const config = require('../config');
-const { Logger } = require('./logging');
+import { WebcastPushConnection } from 'tiktok-live-connector';
+import config from '../config.js';
+import { Logger } from './logging.js';
 
 /**
  * TikTok Live Chat Bridge for Discord Bot
@@ -452,4 +452,4 @@ class TikTokBridge {
     }
 }
 
-module.exports = TikTokBridge;
+export default TikTokBridge;

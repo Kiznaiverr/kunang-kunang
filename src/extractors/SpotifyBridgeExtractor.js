@@ -1,7 +1,7 @@
-const { BaseExtractor } = require('discord-player');
-const { spotify } = require('btch-downloader');
-const Soundcloud = require('soundcloud.ts').default;
-const { Logger } = require('../utils/logging');
+import { BaseExtractor } from 'discord-player';
+import { spotify } from 'btch-downloader';
+import { Soundcloud } from 'soundcloud.ts';
+import { Logger } from '../utils/logging.js';
 
 class SpotifyBridgeExtractor extends BaseExtractor {
     static identifier = 'spotify-bridge';
@@ -172,4 +172,4 @@ class SpotifyBridgeExtractor extends BaseExtractor {
     }
 }
 
-module.exports = { SpotifyBridgeExtractor };
+export { SpotifyBridgeExtractor };

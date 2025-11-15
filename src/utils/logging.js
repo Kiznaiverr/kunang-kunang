@@ -1,5 +1,5 @@
-const util = require('node:util');
-const chalk = require('chalk');
+import util from 'node:util';
+import chalk from 'chalk';
 
 /**
  * Logger class for logging messages with different levels and colors.
@@ -131,7 +131,7 @@ class Logger {
     }
 }
 
-module.exports = {
+export {
     Logger,
-    log: Logger,  // Alias
+    Logger as log,  // Alias
 };

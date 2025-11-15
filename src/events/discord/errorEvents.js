@@ -1,6 +1,6 @@
-const { Logger } = require('../../utils/logging');
+import { Logger } from '../../utils/logging.js';
 
-module.exports = {
+export default {
     registerErrorEvents(client, bot) {
         Logger.debug('Registering error events', 'ErrorEvents');
         

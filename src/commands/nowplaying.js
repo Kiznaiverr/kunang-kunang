@@ -1,7 +1,7 @@
-const { useQueue } = require('discord-player');
-const { Logger } = require('../utils/logging');
+import { useQueue } from 'discord-player';
+import { Logger } from '../utils/logging.js';
 
-module.exports = {
+export default {
     name: 'nowplaying',
     aliases: ['np', 'current'],
     description: 'Show the currently playing track',

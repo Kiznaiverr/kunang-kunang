@@ -1,8 +1,12 @@
-const fs = require('fs');
-const path = require('path');
-const { Logger } = require('../utils/logging');
+import fs from 'fs';
+import path from 'path';
+import { Logger } from '../utils/logging.js';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-module.exports = {
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+export default {
     name: 'help',
     aliases: ['h', 'commands'],
     description: 'Show all available commands',
@@ -19,7 +23,8 @@ module.exports = {
             
             for (const file of commandFiles) {
                 try {
-                    const command = require(path.join(commandsPath, file));
+                    const commandModule = await import(path.join(commandsPath, file));
+                    const command = commandModule.default;
                     if (command.name && command.description) {
                         commands.push({
                             name: command.name,

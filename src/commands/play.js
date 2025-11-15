@@ -1,8 +1,8 @@
-const { useMainPlayer } = require('discord-player');
-const config = require('../config');
-const { Logger } = require('../utils/logging');
+import { useMainPlayer, useQueue } from 'discord-player';
+import config from '../config.js';
+import { Logger } from '../utils/logging.js';
 
-module.exports = {
+export default {
     name: 'play',
     description: 'Play a song',
     execute: async (message, args, bot) => {
@@ -69,7 +69,6 @@ module.exports = {
 
             Logger.debug(`Track queued: ${track.title} by ${track.author}`, 'PlayCommand');
 
-            const { useQueue } = require('discord-player');
             const queue = useQueue(message.guild.id);
             const queuePosition = queue ? queue.tracks.size + 1 : 1;
 

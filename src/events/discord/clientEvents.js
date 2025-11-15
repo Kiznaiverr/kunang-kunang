@@ -1,6 +1,6 @@
-const { Logger } = require('../../utils/logging');
+import { Logger } from '../../utils/logging.js';
 
-module.exports = {
+export default {
     registerClientEvents(client, bot) {
         // Message command handling
         client.on('messageCreate', (message) => {

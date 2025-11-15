@@ -1,5 +1,5 @@
-const config = require('../config');
-const { Logger } = require('../utils/logging');
+import config from '../config.js';
+import { Logger } from '../utils/logging.js';
 
 async function showStatus(message, bot) {
     const bridge = bot.tiktokBridge;
@@ -185,7 +185,7 @@ function formatRelativeTime(date) {
     return `${days}d ago`;
 }
 
-module.exports = {
+export default {
     name: 'tiktok',
     aliases: ['tt', 'bridge'],
     description: 'Show TikTok Bridge status and statistics',
