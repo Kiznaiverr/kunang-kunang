@@ -28,8 +28,9 @@ class SoundCloudExtractor extends BaseExtractor {
             return true;
         }
         
-        Logger.debug('SoundCloudExtractor: Query validation failed - not a SoundCloud URL');
-        return false;
+        
+        Logger.debug('SoundCloudExtractor: Query validation passed - general search query');
+        return true; // accept queries because youtube extractor is disabled
     }
 
     async handle(query: string, context: ExtractorSearchContext): Promise<ExtractorInfo> {
