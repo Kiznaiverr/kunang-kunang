@@ -10,9 +10,28 @@ class YouTubeExtractor extends BaseExtractor {
     }
 
     async validate(query: string): Promise<boolean> {
-        const isValid = typeof query === 'string' && query.length > 0;
-        Logger.debug(`YouTubeExtractor: Validating query "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}" - ${isValid ? 'valid query' : 'invalid query'}`);
-        return isValid;
+        if (typeof query !== 'string' || query.length === 0) {
+            Logger.debug(`YouTubeExtractor: Validating query "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}" - invalid query (not a string or empty)`);
+            return false;
+        }
+
+        // Accept YouTube URLs
+        if (this.isYouTubeURL(query)) {
+            Logger.debug(`YouTubeExtractor: Validating query "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}" - valid YouTube URL`);
+            return true;
+        }
+
+        // Accept search queries (not URLs from other platforms)
+        const isUrl = /^https?:\/\//.test(query);
+        if (isUrl) {
+            // Reject URLs from other platforms (SoundCloud, Spotify, etc.)
+            Logger.debug(`YouTubeExtractor: Validating query "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}" - rejecting non-YouTube URL`);
+            return false;
+        }
+
+        // Accept general search queries
+        Logger.debug(`YouTubeExtractor: Validating query "${query?.substring(0, 50)}${query?.length > 50 ? '...' : ''}" - valid search query`);
+        return true;
     }
 
     async handle(query: string, context: ExtractorSearchContext): Promise<ExtractorInfo> {

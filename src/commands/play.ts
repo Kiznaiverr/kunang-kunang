@@ -50,26 +50,78 @@ const playCommand: Command = {
             let finalSearchResult: SearchResult | null = searchResult;
             let tracksToPlay: Track[] = [];
 
-            // Fallback to SoundCloud if YouTube search failed
+            // Smart fallback mechanism
             if (!searchResult || !searchResult.tracks.length) {
-                Logger.debug('YouTube search failed, trying SoundCloud fallback...', 'PlayCommand');
-                try {
-                    const soundcloudExtractor = new (SoundCloudExtractor as any)(player.extractors.context, {});
-                    await soundcloudExtractor.activate();
-                    const soundcloudResult = await soundcloudExtractor.handle(query, {
-                        requestedBy: message.author as any
-                    });
-                    
-                    if (soundcloudResult && soundcloudResult.tracks.length > 0) {
-                        Logger.debug(`SoundCloud fallback successful, found ${soundcloudResult.tracks.length} tracks`, 'PlayCommand');
-                        tracksToPlay = soundcloudResult.tracks;
-                        finalSearchResult = null; // indicate using tracks array
-                    } else {
-                        Logger.debug('SoundCloud fallback also failed', 'PlayCommand');
+                Logger.debug('Primary search failed, trying smart fallback...', 'PlayCommand');
+
+                // If SoundCloud URL failed, try YouTube search with extracted title
+                if (query.match(/^https?:\/\/(www\.)?(soundcloud\.com|snd\.sc)/)) {
+                    Logger.debug('SoundCloud URL failed, trying YouTube search with extracted title...', 'PlayCommand');
+                    try {
+                        // Extract title from SoundCloud URL (basic extraction)
+                        const urlParts = query.split('/');
+                        const titlePart = urlParts[urlParts.length - 1].replace(/-/g, ' ');
+                        const searchQuery = titlePart.charAt(0).toUpperCase() + titlePart.slice(1);
+
+                        Logger.debug(`Searching YouTube for: "${searchQuery}"`, 'PlayCommand');
+                        const youtubeFallback = await player.search(searchQuery, {
+                            requestedBy: message.author as any
+                        });
+
+                        if (youtubeFallback && youtubeFallback.tracks.length > 0) {
+                            Logger.debug(`YouTube fallback successful, found ${youtubeFallback.tracks.length} tracks`, 'PlayCommand');
+                            finalSearchResult = youtubeFallback;
+                        } else {
+                            Logger.debug('YouTube fallback also failed', 'PlayCommand');
+                        }
+                    } catch (fallbackError) {
+                        const fallbackErrorMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+                        Logger.debug(`YouTube fallback error: ${fallbackErrorMsg}`, 'PlayCommand');
                     }
-                } catch (fallbackError) {
-                    const fallbackErrorMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
-                    Logger.debug(`SoundCloud fallback error: ${fallbackErrorMsg}`, 'PlayCommand');
+                }
+                // If YouTube URL failed, try SoundCloud search
+                else if (query.match(/^https?:\/\/(www\.|m\.|music\.)?youtube\.com\/|https?:\/\/youtu\.be\//)) {
+                    Logger.debug('YouTube URL failed, trying SoundCloud search...', 'PlayCommand');
+                    try {
+                        const soundcloudExtractor = new (SoundCloudExtractor as any)(player.extractors.context, {});
+                        await soundcloudExtractor.activate();
+                        const soundcloudResult = await soundcloudExtractor.handle(query, {
+                            requestedBy: message.author as any
+                        });
+
+                        if (soundcloudResult && soundcloudResult.tracks.length > 0) {
+                            Logger.debug(`SoundCloud fallback successful, found ${soundcloudResult.tracks.length} tracks`, 'PlayCommand');
+                            tracksToPlay = soundcloudResult.tracks;
+                            finalSearchResult = null;
+                        } else {
+                            Logger.debug('SoundCloud fallback also failed', 'PlayCommand');
+                        }
+                    } catch (fallbackError) {
+                        const fallbackErrorMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+                        Logger.debug(`SoundCloud fallback error: ${fallbackErrorMsg}`, 'PlayCommand');
+                    }
+                }
+                // If general search failed, try SoundCloud search
+                else {
+                    Logger.debug('General search failed, trying SoundCloud search...', 'PlayCommand');
+                    try {
+                        const soundcloudExtractor = new (SoundCloudExtractor as any)(player.extractors.context, {});
+                        await soundcloudExtractor.activate();
+                        const soundcloudResult = await soundcloudExtractor.handle(query, {
+                            requestedBy: message.author as any
+                        });
+
+                        if (soundcloudResult && soundcloudResult.tracks.length > 0) {
+                            Logger.debug(`SoundCloud fallback successful, found ${soundcloudResult.tracks.length} tracks`, 'PlayCommand');
+                            tracksToPlay = soundcloudResult.tracks;
+                            finalSearchResult = null;
+                        } else {
+                            Logger.debug('SoundCloud fallback also failed', 'PlayCommand');
+                        }
+                    } catch (fallbackError) {
+                        const fallbackErrorMsg = fallbackError instanceof Error ? fallbackError.message : String(fallbackError);
+                        Logger.debug(`SoundCloud fallback error: ${fallbackErrorMsg}`, 'PlayCommand');
+                    }
                 }
             }
 
