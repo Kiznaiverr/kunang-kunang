@@ -53,14 +53,12 @@ class MusicBot implements IMusicBot {
     async init() {
         Logger.debug('MusicBot: Starting initialization sequence...');
         
-        /*
-        disable YouTube extractor since it's not working properly
-
+        
         Logger.debug('MusicBot: Registering YouTube extractor...');
         await this.player.extractors.register(YouTubeExtractor, {});
         await sleep(1000);
 
-        */
+        
 
         Logger.debug('MusicBot: Registering Spotify extractor...');
         await this.player.extractors.register(SpotifyBridgeExtractor, {});
