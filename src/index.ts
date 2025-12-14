@@ -1,6 +1,6 @@
 import { Client, GatewayIntentBits, Collection } from 'discord.js';
 import { Player } from 'discord-player';
-import { SoundCloudExtractor, YouTubeExtractor, SpotifyBridgeExtractor } from './extractors/index.js';
+import { SoundCloudExtractor, YouTubeExtractor, SpotifyBridgeExtractor, GoogleVideoExtractor } from './extractors/index.js';
 import OverlayServer from './web/server.js';
 import TikTokBridge from './utils/TikTokBridge.js';
 import config from './config.js';
@@ -53,12 +53,13 @@ class MusicBot implements IMusicBot {
     async init() {
         Logger.debug('MusicBot: Starting initialization sequence...');
         
+        Logger.debug('MusicBot: Registering Google Video extractor...');
+        await this.player.extractors.register(GoogleVideoExtractor, {});
+        await sleep(1000);
         
         Logger.debug('MusicBot: Registering YouTube extractor...');
         await this.player.extractors.register(YouTubeExtractor, {});
         await sleep(1000);
-
-        
 
         Logger.debug('MusicBot: Registering Spotify extractor...');
         await this.player.extractors.register(SpotifyBridgeExtractor, {});
