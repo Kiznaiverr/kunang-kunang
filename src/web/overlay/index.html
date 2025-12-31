@@ -1,48 +1,49 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Kunang-Kunang Music Overlay</title>
-    <link rel="stylesheet" href="css/base.css">
-    <link id="preset-css" rel="stylesheet" href="css/preset1.css">
-</head>
-<body>
+    <link rel="stylesheet" href="css/base.css" />
+    <link id="preset-css" rel="stylesheet" href="css/preset1.css" />
+  </head>
+  <body>
     <div id="overlay-container" class="overlay-container preset-1">
-        <!-- Status Indicator -->
-        <div class="status-indicator"></div>
-        
-        <!-- Main Track Display -->
-        <div class="main-track">
-            <div class="track-visual">
-                <div id="track-thumbnail" class="track-thumbnail">
-                    <img id="thumbnail-img" src="" alt="Album Art">
-                    <div class="vinyl-center"></div>
-                </div>
-                <div class="equalizer">
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                    <div class="bar"></div>
-                </div>
-            </div>
-            
-            <div class="track-details">
-                <div class="track-main">
-                    <div id="track-title" class="track-title">Loading...</div>
-                    <div id="track-author" class="track-author">Please wait</div>
-                </div>
-                <div class="queue-preview">
-                    <span class="queue-label">Up Next:</span>
-                    <div id="queue-list" class="queue-inline">
-                        <span class="queue-item-inline">No songs in queue</span>
-                    </div>
-                </div>
-            </div>
+      <!-- Status Indicator -->
+      <div class="status-indicator"></div>
+
+      <!-- Main Track Display -->
+      <div class="main-track">
+        <div class="track-visual">
+          <div id="track-thumbnail" class="track-thumbnail">
+            <img id="thumbnail-img" src="" alt="Album Art" />
+            <div class="vinyl-center"></div>
+          </div>
+          <div class="equalizer">
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+            <div class="bar"></div>
+          </div>
         </div>
+
+        <div class="track-details">
+          <div class="track-main">
+            <div id="track-title" class="track-title">Loading...</div>
+            <div id="track-author" class="track-author">Please wait</div>
+            <div id="loop-status" class="loop-status">Loop: Off</div>
+          </div>
+          <div class="queue-preview">
+            <span class="queue-label">Up Next:</span>
+            <div id="queue-list" class="queue-inline">
+              <span class="queue-item-inline">No songs in queue</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script src="js/overlay.js"></script>
-</body>
+  </body>
 </html>
