@@ -9,8 +9,6 @@
     "postbuild": "tsx src/utils/copy-overlay.ts",
     "start": "npm run build && node dist/index.js",
     "dev": "nodemon dist/index.js",
-    "clone": "git clone https://github.com/Kiznaiverr/kunang-kunang.git .",
-    "pull": "git pull",
     "ptero": "git pull && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
