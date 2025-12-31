@@ -9,7 +9,7 @@
     "postbuild": "tsx src/utils/copy-overlay.ts",
     "start": "npm run build && node dist/index.js",
     "dev": "nodemon dist/index.js",
-    "ptero": "git stash && git pull && git stash pop && npm start",
+    "ptero": "git pull --force origin main && npm start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
