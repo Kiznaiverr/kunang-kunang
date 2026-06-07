@@ -25,7 +25,8 @@ RUN apk add --no-cache \
     pango \
     jpeg \
     giflib \
-    librsvg
+    librsvg \
+    ffmpeg
 
 ENV NODE_ENV=production
 

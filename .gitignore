@@ -4,6 +4,5 @@ dist
 .vscode
 .DS_Store
 coverage
-package-lock.json
 testing
 AGENTS.md
