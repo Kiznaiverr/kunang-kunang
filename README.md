@@ -106,7 +106,7 @@ DISCORD_GUILD_ID=your_server_id_here
 DISCORD_VOICE_CHANNEL_ID=your_voice_channel_id_here
 COMMAND_COOLDOWN=5000
 
-# SoundCloud API credentials (Required)
+# SoundCloud API credentials (optional)
 SOUNDCLOUD_CLIENT_ID=your_soundcloud_client_id
 SOUNDCLOUD_OAUTH_TOKEN=your_soundcloud_oauth_token
 

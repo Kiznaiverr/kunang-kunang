@@ -1,0 +1,8 @@
+services:
+  kunang-kunang:
+    build: .
+    container_name: kunang-kunang
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "3000:3000"
